@@ -23,6 +23,9 @@ Browser extension (Manifest V3) that translates **selected text** and **whole pa
 | `lib/languages.js` | Target languages + DeepL codes |
 | `lib/presets.js` | OpenAI-compatible service presets (base URLs) |
 
+## Branding assets (`assets/`, not shipped in the extension)
+`logo.svg` (vector master: ghost + speech-bubble badge with 文, glyph converted to a path), `logo-512.png`, `social-preview.png` (1280x640, GitHub repo social preview), `store/icon-128-store.png` (128 px with 16 px transparent padding, for the Chrome Web Store listing). Extension icons live in `src/icons/` (the 16 px icon uses an enlarged bubble with a hand-placed 5x5 pixel 文, because the real glyph turns to mush at that size).
+
 ## Settings shape (`chrome.storage.local["settings"]`)
 ```js
 {
