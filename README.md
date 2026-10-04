@@ -48,7 +48,7 @@ A Manifest V3 browser extension for **Chrome, Edge, Brave, Opera, Vivaldi, Arc, 
 | Browser | Package | Status |
 |---|---|---|
 | Chrome, Edge, Brave, Opera, Vivaldi, Arc | `wraith-translate-chromium-v*.zip` | Tested on Chromium |
-| Firefox 128+ | `wraith-translate-firefox-v*.zip` | Passes `web-ext lint`; tested manually in Firefox (temporary add-on) |
+| Firefox 140+ | `wraith-translate-firefox-v*.zip` | Passes `web-ext lint`; tested manually in Firefox (temporary add-on) |
 | Safari (macOS/iOS) | not built | Needs Xcode: `xcrun safari-web-extension-converter dist/chromium` |
 
 ## Installation
@@ -61,7 +61,7 @@ A Manifest V3 browser extension for **Chrome, Edge, Brave, Opera, Vivaldi, Arc, 
 
 After changing code, click the reload icon on the extension card, then reload the tab you are testing.
 
-### Firefox (128 or newer)
+### Firefox (140 or newer)
 1. Open `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on** → choose `manifest.json` from `dist/firefox` (or the zip). Temporary add-ons are removed when Firefox closes.
 2. For a permanent install, sign the package at [addons.mozilla.org](https://addons.mozilla.org) (the *unlisted* channel is enough), or use Firefox Developer Edition / Nightly with `xpinstall.signatures.required` set to `false`.
 3. Open the settings page and click **Allow access** on the banner so the selection button works on all sites. (Page translation from the popup works without this permission.)
@@ -174,6 +174,8 @@ Feature changes apply to open tabs immediately, without a reload. The **Docs** t
 ├── build.py                builds dist/chromium, dist/firefox, and zips
 ├── tests/                  end-to-end tests (Playwright + Chromium)
 ├── AGENTS.md               architecture guide for developers / AI assistants
+├── PRIVACY.md              privacy policy (link it in store listings)
+├── STORE_LISTING.md        ready-to-paste store listing text
 └── dist/                   build output (generated, do not edit)
 ```
 

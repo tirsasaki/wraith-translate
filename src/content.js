@@ -14,11 +14,12 @@
       :host { all: initial; }
       * { box-sizing: border-box; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
       .btn {
-        position: absolute; width: 28px; height: 28px; border-radius: 8px; border: 1px solid #e4e4e7;
-        background: #fff; color: #18181b; cursor: pointer; display: none; align-items: center;
-        justify-content: center; font-size: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.14); padding: 0;
+        position: absolute; width: 28px; height: 28px; border-radius: 8px; border: 1px solid rgba(228,228,231,.7);
+        background: rgba(255,255,255,.72); color: #71717a; cursor: pointer; display: none; align-items: center;
+        justify-content: center; font-size: 14px; box-shadow: 0 1px 6px rgba(0,0,0,.12); padding: 0;
+        -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); transition: background .12s, color .12s;
       }
-      .btn:hover { background: #f4f4f5; }
+      .btn:hover { background: rgba(255,255,255,.95); color: #18181b; }
       .btn.show { display: flex; }
       .tip {
         position: absolute; display: none; width: 360px; max-width: calc(100vw - 16px);
@@ -120,22 +121,73 @@
     token++;
   }
 
+  // Line box (viewport coords) of the selected text under the mouse, used to float the icon above it.
+  function lineAtPoint(cx, cy) {
+    try {
+      const sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return null;
+      let best = null, bestD = Infinity;
+      for (const r of sel.getRangeAt(0).getClientRects()) {
+        if (!r.width && !r.height) continue;
+        const dy = cy < r.top ? r.top - cy : cy > r.bottom ? cy - r.bottom : 0;
+        const dx = cx < r.left ? r.left - cx : cx > r.right ? cx - r.right : 0;
+        const d = dy * 1000 + dx;
+        if (d < bestD) { bestD = d; best = r; }
+      }
+      return best;
+    } catch { return null; }
+  }
+
+  // Where the icon should appear. Mouse selections: just above the selected text under the cursor
+  // (double-click = centered on the word, drag = centered on the release point).
+  // Keyboard selections: at the caret end of the selection.
   function selectionPoint(e) {
+    const sx = window.scrollX, sy = window.scrollY;
+    if (e && e.type === "mouseup" && typeof e.clientX === "number") {
+      const r = lineAtPoint(e.clientX, e.clientY);
+      if (r) {
+        const word = e.detail >= 2 && e.clientX >= r.left - 2 && e.clientX <= r.right + 2;
+        const cx = word ? (r.left + r.right) / 2 : Math.min(Math.max(e.clientX, r.left), r.right);
+        return { x: cx + sx, y: r.bottom + sy, top: r.top + sy, above: true };
+      }
+      return { x: e.clientX + sx, y: e.clientY + sy + 10, top: e.clientY + sy - 10, above: true };
+    }
     const sel = window.getSelection();
     let rect = null;
     try {
       if (sel && sel.rangeCount) {
-        const rs = sel.getRangeAt(0).getClientRects();
-        if (rs.length) rect = rs[rs.length - 1];
+        if (sel.focusNode) {
+          const r = document.createRange();
+          r.setStart(sel.focusNode, sel.focusOffset);
+          r.collapse(true);
+          const cr = r.getClientRects();
+          if (cr.length) rect = cr[0];
+        }
+        if (!rect) {
+          const rs = sel.getRangeAt(0).getClientRects();
+          if (rs.length) rect = rs[rs.length - 1];
+        }
       }
     } catch {}
     if (rect && (rect.width || rect.height)) {
-      return { x: rect.right + window.scrollX, y: rect.bottom + window.scrollY, top: rect.top + window.scrollY };
+      return { x: rect.right + sx, y: rect.bottom + sy, top: rect.top + sy, above: true };
     }
     if (e && typeof e.clientX === "number") {
-      return { x: e.clientX + window.scrollX, y: e.clientY + window.scrollY + 12, top: e.clientY + window.scrollY };
+      return { x: e.clientX + sx, y: e.clientY + sy + 10, top: e.clientY + sy - 10, above: true };
     }
     return null;
+  }
+
+  // Float the icon centered just above the anchor; flip below if there is no room, clamp to the viewport.
+  function placeButton(pt) {
+    const size = 28, gap = 6;
+    const vw = document.documentElement.clientWidth;
+    let left = pt.x - size / 2;
+    let top = pt.top - size - gap;
+    if (top - window.scrollY < 4) top = pt.y + gap;
+    left = Math.min(Math.max(window.scrollX + 4, left), window.scrollX + vw - size - 4);
+    btn.style.left = left + "px";
+    btn.style.top = top + "px";
   }
 
   function onSelect(e) {
@@ -150,8 +202,7 @@
       currentText = text;
       currentPt = pt;
       tip.classList.remove("show");
-      btn.style.left = pt.x + 4 + "px";
-      btn.style.top = pt.y + 6 + "px";
+      placeButton(pt);
       btn.classList.add("show");
     }, 10);
   }

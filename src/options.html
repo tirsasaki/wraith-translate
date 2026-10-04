@@ -10,7 +10,7 @@
 <div class="wrap">
   <header>
     <div>
-      <h1>Wraith Translate</h1>
+      <h1>Wraith Translate <span class="ver" id="ver" title="Installed version" hidden></span></h1>
       <p class="tag">Select text or translate a whole page.</p>
     </div>
     <div class="tabs" role="tablist">
@@ -301,7 +301,7 @@
       <li>Click Load unpacked and select the extracted folder.</li>
       <li>After changing code, click the reload icon on the extension card, then reload the tab you are testing.</li>
     </ol>
-    <p><strong>Firefox</strong> (use the Firefox package, Firefox 128 or newer):</p>
+    <p><strong>Firefox</strong> (use the Firefox package, Firefox 140 or newer):</p>
     <ol>
       <li>Open <code>about:debugging#/runtime/this-firefox</code> and click <strong>Load Temporary Add-on</strong>, then pick <code>manifest.json</code> from the extracted folder (or the zip). Temporary add-ons are removed when Firefox closes.</li>
       <li>For a permanent install, sign the package at addons.mozilla.org (unlisted is fine), or use Firefox Developer Edition / Nightly with <code>xpinstall.signatures.required</code> set to false.</li>

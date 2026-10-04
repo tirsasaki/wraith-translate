@@ -48,7 +48,7 @@ Extension browser (Manifest V3) untuk **Chrome, Edge, Brave, Opera, Vivaldi, Arc
 | Browser | Paket | Status |
 |---|---|---|
 | Chrome, Edge, Brave, Opera, Vivaldi, Arc | `wraith-translate-chromium-v*.zip` | Diuji di Chromium |
-| Firefox 128+ | `wraith-translate-firefox-v*.zip` | Lolos `web-ext lint`; sudah diuji manual di Firefox (add-on sementara) |
+| Firefox 140+ | `wraith-translate-firefox-v*.zip` | Lolos `web-ext lint`; sudah diuji manual di Firefox (add-on sementara) |
 | Safari (macOS/iOS) | belum dibuat | Perlu Xcode: `xcrun safari-web-extension-converter dist/chromium` |
 
 ## Instalasi
@@ -61,7 +61,7 @@ Extension browser (Manifest V3) untuk **Chrome, Edge, Brave, Opera, Vivaldi, Arc
 
 Setelah mengubah kode: klik ikon reload pada kartu extension, lalu reload tab yang sedang diuji.
 
-### Firefox (128 atau lebih baru)
+### Firefox (140 atau lebih baru)
 1. Buka `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on** → pilih `manifest.json` dari folder `dist/firefox` (atau zip-nya). Add-on sementara hilang saat Firefox ditutup.
 2. Untuk pemasangan permanen: tanda tangani paket di [addons.mozilla.org](https://addons.mozilla.org) (mode *unlisted* cukup), atau pakai Firefox Developer Edition / Nightly dengan `xpinstall.signatures.required` = `false`.
 3. Buka halaman pengaturan dan klik **Allow access** pada banner, agar tombol seleksi bekerja di semua situs. (Translate halaman lewat popup tetap jalan tanpa izin ini.)
@@ -174,6 +174,8 @@ Perubahan fitur berlaku langsung di tab yang sudah terbuka tanpa reload. Tab **D
 ├── build.py                membuat dist/chromium, dist/firefox, dan zip
 ├── tests/                  tes end-to-end (Playwright + Chromium)
 ├── AGENTS.md               panduan arsitektur untuk developer / asisten AI
+├── PRIVACY.md              kebijakan privasi (tautkan di listing toko)
+├── STORE_LISTING.md        teks listing toko siap salin
 └── dist/                   hasil build (di-generate, jangan diedit)
 ```
 

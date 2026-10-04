@@ -215,6 +215,14 @@ async function checkAccess() {
 }
 
 /* ---------- Init ---------- */
+// Show the installed version (read from the manifest, so it always matches the loaded build).
+try {
+  const v = chrome.runtime.getManifest().version;
+  const el = $("ver");
+  el.textContent = "v" + v;
+  el.hidden = false;
+} catch {}
+
 async function init() {
   checkAccess();
   $("grant-access").onclick = async () => {
