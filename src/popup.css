@@ -1,0 +1,29 @@
+:root { --ink:#18181b; --muted:#71717a; --line:#e4e4e7; --soft:#f4f4f5; --dark:#18181b; --danger:#b42318; }
+* { box-sizing: border-box; }
+body { margin:0; width:290px; padding:14px; color:var(--ink); background:#fff; font:13px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+header { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+h1 { font-size:15px; font-weight:650; letter-spacing:-.01em; margin:0; }
+button { font:inherit; cursor:pointer; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline:2px solid var(--dark); outline-offset:2px; }
+.main { width:100%; height:38px; border-radius:10px; border:1px solid var(--dark); background:var(--dark); color:#fff; font-weight:600; }
+.main:hover { background:#2b2b30; }
+.main.alt { background:#fff; color:var(--ink); border-color:var(--line); }
+.main.alt:hover { background:var(--soft); }
+.main:disabled { opacity:.45; cursor:default; }
+.note { min-height:18px; margin:6px 2px 0; font-size:12px; color:var(--muted); }
+.note.err { color:var(--danger); }
+.field { margin-top:10px; }
+.field label { display:block; font-size:12px; font-weight:600; margin-bottom:4px; }
+select { width:100%; height:32px; padding:0 28px 0 10px; font:inherit; color:var(--ink); background:#fff; border:1px solid var(--line); border-radius:10px; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' fill='none' stroke='%2371717a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 11px center; }
+.toggles { margin-top:8px; border-top:1px solid var(--line); }
+.switch-row { display:flex; align-items:center; justify-content:space-between; padding:8px 2px; cursor:pointer; }
+.switch-row + .switch-row { border-top:1px solid var(--line); }
+input[role=switch] { appearance:none; flex:none; width:34px; height:19px; margin:0; border-radius:999px; background:#d4d4d8; position:relative; cursor:pointer; transition:background .15s; }
+input[role=switch]::after { content:""; position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:transform .15s; }
+input[role=switch]:checked { background:var(--dark); }
+input[role=switch]:checked::after { transform:translateX(15px); }
+.link { width:100%; height:34px; margin-top:6px; border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); }
+.link:hover { background:var(--soft); }
+@media (prefers-reduced-motion: reduce) { input[role=switch], input[role=switch]::after { transition:none; } }

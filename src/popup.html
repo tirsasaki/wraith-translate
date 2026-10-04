@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wraith Translate</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="icons/icon48.png" alt="" width="24" height="24">
+    <h1>Wraith Translate</h1>
+  </header>
+
+  <button type="button" class="main" id="page-btn">Translate this page</button>
+  <p class="note" id="note" role="status"></p>
+
+  <div class="field">
+    <label for="lang">Translate to</label>
+    <select id="lang"></select>
+  </div>
+
+  <div class="toggles">
+    <label class="switch-row"><span>Selected text</span><input type="checkbox" role="switch" id="f-selection"></label>
+    <label class="switch-row"><span>Full page</span><input type="checkbox" role="switch" id="f-page"></label>
+  </div>
+
+  <button type="button" class="link" id="open-settings">⚙ Open settings</button>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

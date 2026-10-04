@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wraith Translate</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Wraith Translate</h1>
+      <p class="tag">Select text or translate a whole page.</p>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-settings" aria-selected="true" aria-controls="panel-settings">Settings</button>
+      <button class="tab" role="tab" id="tab-docs" aria-selected="false" aria-controls="panel-docs">Docs</button>
+    </div>
+  </header>
+
+  <!-- ================= SETTINGS ================= -->
+  <section id="panel-settings" class="panel" role="tabpanel" aria-labelledby="tab-settings">
+    <div class="notice" id="access-notice" hidden>
+      <span>Allow Wraith Translate to run on websites so the selection button works everywhere. Page translation from the toolbar popup works without it.</span>
+      <button type="button" class="primary" id="grant-access">Allow access</button>
+    </div>
+    <h3 class="sec">Features</h3>
+    <label class="switch-row">
+      <span class="txt"><b>Translate selected text</b><small>Shows a small button next to text you select. The translation appears in a tooltip.</small></span>
+      <input type="checkbox" role="switch" id="f-selection">
+    </label>
+    <label class="switch-row">
+      <span class="txt"><b>Translate full page</b><small>Start it from the toolbar popup, the right-click menu, or <kbd>Alt</kbd>+<kbd>W</kbd>. Use it again to restore the original.</small></span>
+      <input type="checkbox" role="switch" id="f-page">
+    </label>
+    <div class="sub" id="page-opts">
+      <div class="field">
+        <label id="pm-label">Page display</label>
+        <div class="seg" role="radiogroup" aria-labelledby="pm-label">
+          <label><input type="radio" name="pagemode" value="replace"><span>Replace text</span></label>
+          <label><input type="radio" name="pagemode" value="bilingual"><span>Show both</span></label>
+        </div>
+        <p class="hint" id="pm-hint"></p>
+      </div>
+      <label class="switch-row">
+        <span class="txt"><b>Translate as you scroll</b><small>Translates only what you are about to see. Saves time and cost on long pages. Turn off to translate everything at once.</small></span>
+        <input type="checkbox" role="switch" id="f-lazy">
+      </label>
+    </div>
+
+    <h3 class="sec">Provider</h3>
+    <div class="seg" role="radiogroup" aria-label="Translation provider">
+      <label><input type="radio" name="provider" value="9router"><span>9router</span></label>
+      <label><input type="radio" name="provider" value="custom"><span>Custom</span></label>
+      <label><input type="radio" name="provider" value="claude"><span>Claude</span></label>
+      <label><input type="radio" name="provider" value="deepl"><span>DeepL</span></label>
+    </div>
+
+    <!-- 9router -->
+    <div class="pane" data-pane="9router">
+      <div class="field">
+        <label for="r-base">Base URL</label>
+        <input type="url" id="r-base" placeholder="http://localhost:20128/v1" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="r-key">API key <small>optional if 9router has no auth</small></label>
+        <div class="row">
+          <input type="password" id="r-key" autocomplete="off" spellcheck="false">
+          <button type="button" class="ghost" data-toggle="r-key">Show</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="r-model">Model</label>
+        <div class="row">
+          <select id="r-model"><option value="">Connect to load models</option></select>
+          <button type="button" class="ghost" id="r-load">Connect</button>
+        </div>
+        <p class="status" id="r-status" role="status"></p>
+      </div>
+    </div>
+
+    <!-- Custom (OpenAI-compatible) -->
+    <div class="pane" data-pane="custom" hidden>
+      <div class="field two">
+        <div>
+          <label for="u-preset">Service</label>
+          <select id="u-preset"></select>
+        </div>
+        <div>
+          <label for="u-base">Base URL</label>
+          <input type="url" id="u-base" placeholder="https://api.openai.com/v1" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+      <div class="field">
+        <label for="u-key">API key <small>leave empty for local services</small></label>
+        <div class="row">
+          <input type="password" id="u-key" autocomplete="off" spellcheck="false">
+          <button type="button" class="ghost" data-toggle="u-key">Show</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="u-model">Model</label>
+        <div class="row">
+          <select id="u-model"><option value="">Connect to load models</option></select>
+          <button type="button" class="ghost" id="u-load">Connect</button>
+        </div>
+        <p class="status" id="u-status" role="status"></p>
+      </div>
+    </div>
+
+    <!-- Claude -->
+    <div class="pane" data-pane="claude" hidden>
+      <div class="field">
+        <label for="c-key">API key</label>
+        <div class="row">
+          <input type="password" id="c-key" autocomplete="off" spellcheck="false" placeholder="sk-ant-…">
+          <button type="button" class="ghost" data-toggle="c-key">Show</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="c-model">Model</label>
+        <div class="row">
+          <select id="c-model"><option value="">Enter your API key, then load models</option></select>
+          <button type="button" class="ghost" id="c-load">Load models</button>
+        </div>
+        <p class="status" id="c-status" role="status"></p>
+      </div>
+    </div>
+
+    <!-- DeepL -->
+    <div class="pane" data-pane="deepl" hidden>
+      <div class="field">
+        <label for="d-key">API key</label>
+        <div class="row">
+          <input type="password" id="d-key" autocomplete="off" spellcheck="false">
+          <button type="button" class="ghost" data-toggle="d-key">Show</button>
+        </div>
+        <p class="hint" id="d-plan">Free-plan keys end in :fx and are detected automatically.</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="lang">Target language <small>source language is detected automatically</small></label>
+      <select id="lang"></select>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="save">Save settings</button>
+      <button type="button" class="ghost" id="test">Test translation</button>
+      <span class="status" id="save-status" role="status"></span>
+    </div>
+    <div class="test-out" id="test-out"></div>
+  </section>
+
+  <!-- ================= DOCS ================= -->
+  <section id="panel-docs" class="doc panel" role="tabpanel" aria-labelledby="tab-docs" hidden>
+    <nav aria-label="Documentation contents">
+      <a href="#d-intro">Overview</a><a href="#d-use">Usage</a><a href="#d-page">Full page</a><a href="#d-features">Features</a><a href="#d-9router">9router</a><a href="#d-custom">Custom</a>
+      <a href="#d-claude">Claude</a><a href="#d-deepl">DeepL</a><a href="#d-compare">Compare</a><a href="#d-lang">Languages</a>
+      <a href="#d-perm">Permissions</a><a href="#d-privacy">Privacy</a><a href="#d-trouble">Troubleshooting</a>
+      <a href="#d-install">Install</a><a href="#d-files">Files</a>
+    </nav>
+
+    <h2 id="d-intro">Overview</h2>
+    <p>Wraith Translate translates any text you select on a web page, or the whole page at once. Select text, click the small button that appears next to it, and the translation shows in a tooltip. To translate a page, click the toolbar icon and press <strong>Translate this page</strong>. The source language is detected automatically; the target language is set in Settings.</p>
+    <p>Four providers are supported: <strong>9router</strong> (an OpenAI-compatible AI gateway), <strong>Custom</strong> (any OpenAI-compatible service), <strong>Claude</strong> from Anthropic, and <strong>DeepL</strong>. Only the selected provider is used; settings for the others stay saved.</p>
+
+    <h2 id="d-use">Usage</h2>
+    <ol>
+      <li>In Settings, choose a provider, enter its connection details, and click Save settings.</li>
+      <li>Click Test translation to verify the connection.</li>
+      <li>On any web page, select some text and click the small button that appears.</li>
+      <li>Read the result in the tooltip. The full translation is always shown, with no inner scrolling. Click Copy to copy it; press <code>Esc</code> or click elsewhere to close it.</li>
+      <li>To see the same text in another language, use the <strong>Translate to</strong> menu at the bottom of the tooltip. This applies only to that tooltip and does not change your saved target language.</li>
+    </ol>
+    <p>Very long translations make the tooltip taller, so scroll the page itself to read the rest. Each translation is limited to 5,000 characters. The button does not appear on browser-internal pages (<code>chrome://</code>), the Chrome Web Store, or the built-in PDF viewer.</p>
+
+    <h2 id="d-page">Translate a full page</h2>
+    <ol>
+      <li>Open the page, then click the Wraith Translate toolbar icon and press <strong>Translate this page</strong>. You can also choose <strong>Translate this page with Wraith Translate</strong> from the right-click menu, or press <kbd>Alt</kbd>+<kbd>W</kbd> (change the shortcut at <code>chrome://extensions/shortcuts</code>).</li>
+      <li>The toolbar popup also lets you change the target language, switch selected-text and full-page translation on or off, and open this settings page.</li>
+      <li>A small bar appears at the bottom of the page. It shows progress, lets you pick another language, switch between <strong>Original</strong> and <strong>Translation</strong>, and close to restore the page.</li>
+      <li>Open the popup and press <strong>Show original page</strong> (or use the × on the bar) to restore the original page.</li>
+    </ol>
+    <p>With <strong>Replace text</strong>, each piece of text is swapped in place and the page layout is kept. With <strong>Show both</strong>, the translation is added under each paragraph, so you can read the original next to it. Code blocks, form fields, and elements marked <code>translate="no"</code> or <code>class="notranslate"</code> are left alone.</p>
+    <p>With <strong>Translate as you scroll</strong> on, only text near the screen is sent to your provider; the rest is translated as you reach it. New content that loads while you scroll (infinite scroll) is picked up after you stop scrolling. Identical strings on a page are translated once. Pages translated through an LLM provider use tokens, so long pages cost more; DeepL counts characters.</p>
+
+    <h2 id="d-features">Feature settings</h2>
+    <div class="scroll"><table>
+      <tr><th>Setting</th><th>Effect</th></tr>
+      <tr><td>Translate selected text</td><td>Off hides the selection button everywhere. Full-page translation is unaffected.</td></tr>
+      <tr><td>Translate full page</td><td>Off disables the popup's translate button, shortcut, and right-click menu, and restores any page currently translated.</td></tr>
+      <tr><td>Page display</td><td><strong>Replace text</strong> swaps the text in place. <strong>Show both</strong> adds the translation under each paragraph. Applies the next time you start a page translation.</td></tr>
+      <tr><td>Translate as you scroll</td><td>On: translate near-screen text only. Off: translate the whole page right away.</td></tr>
+    </table></div>
+
+    <h2 id="d-9router">9router</h2>
+    <ol>
+      <li>Make sure 9router is running and at least one AI provider is connected in its dashboard.</li>
+      <li>Enter the <strong>Base URL</strong>, for example <code>http://localhost:20128/v1</code>, or your server address if 9router runs elsewhere.</li>
+      <li>Enter the <strong>API key</strong> from the 9router dashboard (leave empty if auth is off).</li>
+      <li>Click <strong>Connect</strong>. Wraith Translate calls <code>GET {baseUrl}/models</code> and fills the Model list with every model available in your 9router, grouped by the prefix before <code>/</code>.</li>
+      <li>Pick a model and click Save settings.</li>
+    </ol>
+    <p>If you add or remove AI connections in 9router, click Connect again to refresh the list. Translations are sent to <code>POST {baseUrl}/chat/completions</code> with an <code>Authorization: Bearer …</code> header. For any address other than <code>localhost</code> or <code>127.0.0.1</code>, the browser asks for access to it when you click Connect or Save.</p>
+
+    <h2 id="d-custom">Custom (OpenAI-compatible)</h2>
+    <p>Use this for any service that mimics the OpenAI API.</p>
+    <ol>
+      <li>Choose a <strong>Service</strong> preset, or choose Other and type a base URL.</li>
+      <li>Enter the <strong>API key</strong> (leave empty for local services).</li>
+      <li>Click <strong>Connect</strong> to load models from <code>GET {baseUrl}/models</code>, then pick one.</li>
+      <li>Click Save settings.</li>
+    </ol>
+    <div class="scroll"><table>
+      <tr><th>Preset</th><th>Base URL</th></tr>
+      <tr><td>OpenAI</td><td><code>https://api.openai.com/v1</code></td></tr>
+      <tr><td>OpenRouter</td><td><code>https://openrouter.ai/api/v1</code></td></tr>
+      <tr><td>Groq</td><td><code>https://api.groq.com/openai/v1</code></td></tr>
+      <tr><td>Google Gemini</td><td><code>https://generativelanguage.googleapis.com/v1beta/openai</code></td></tr>
+      <tr><td>DeepSeek</td><td><code>https://api.deepseek.com/v1</code></td></tr>
+      <tr><td>Mistral</td><td><code>https://api.mistral.ai/v1</code></td></tr>
+      <tr><td>Together AI</td><td><code>https://api.together.xyz/v1</code></td></tr>
+      <tr><td>Ollama (local)</td><td><code>http://localhost:11434/v1</code></td></tr>
+      <tr><td>LM Studio (local)</td><td><code>http://localhost:1234/v1</code></td></tr>
+    </table></div>
+    <p>The browser asks for access to the service address when you click Connect, Save, or Test translation; local addresses need no extra permission. If Ollama answers with a 403 error, start it with <code>OLLAMA_ORIGINS=chrome-extension://*</code>. Some services do not offer <code>/models</code>; if the list is empty or returns 404, check that service's documentation. Cost and usage limits follow the service you choose.</p>
+
+    <h2 id="d-claude">Claude</h2>
+    <ol>
+      <li>Create an API key in the Anthropic Console and paste it into API key.</li>
+      <li>Click <strong>Load models</strong>. The list comes from <code>GET https://api.anthropic.com/v1/models</code>, so it always matches what your account can use.</li>
+      <li>Pick a model and click Save settings.</li>
+    </ol>
+    <p>Translations go to <code>POST /v1/messages</code> with the <code>x-api-key</code> and <code>anthropic-version</code> headers. Usage is billed at your API account's rates. Smaller models are usually faster and cheaper for short translations.</p>
+
+    <h2 id="d-deepl">DeepL</h2>
+    <ol>
+      <li>Create a DeepL API account (Free and Pro plans exist) and copy your authentication key.</li>
+      <li>Paste it into API key. Keys ending in <code>:fx</code> use <code>api-free.deepl.com</code>; all others use <code>api.deepl.com</code>.</li>
+      <li>Click Save settings.</li>
+    </ol>
+    <p>DeepL is a dedicated translation engine rather than a language model, so there is no model choice. The detected source language is shown in the tooltip. When the quota runs out, the tooltip shows a quota message (error 456).</p>
+
+    <h2 id="d-compare">Choosing a provider</h2>
+    <div class="scroll"><table>
+      <tr><th></th><th>9router</th><th>Custom</th><th>Claude</th><th>DeepL</th></tr>
+      <tr><td>Type</td><td>Gateway to many AI models</td><td>Language model, per service</td><td>Language model</td><td>Translation engine</td></tr>
+      <tr><td>Model choice</td><td>From your 9router</td><td>From the service</td><td>From your account</td><td>None</td></tr>
+      <tr><td>Speed</td><td>Depends on model</td><td>Depends on service</td><td>Fast to medium</td><td>Very fast</td></tr>
+      <tr><td>Context and style</td><td>Good</td><td>Good</td><td>Very good</td><td>Limited, consistent</td></tr>
+      <tr><td>Cost</td><td>Follows the backing provider</td><td>Follows the service</td><td>Pay per token</td><td>Free tier with limits, or Pro</td></tr>
+    </table></div>
+
+    <h2 id="d-lang">Target languages</h2>
+    <p>Indonesian, English, Japanese, Korean, Chinese (Simplified), Arabic, Spanish, French, German, Portuguese (Brazil), Russian, Italian, Dutch, Turkish, Polish, and Ukrainian. With DeepL, English uses the US variant and Portuguese uses the Brazilian variant.</p>
+
+    <h2 id="d-perm">Permissions</h2>
+    <div class="scroll"><table>
+      <tr><th>Permission</th><th>Why</th></tr>
+      <tr><td><code>storage</code></td><td>Saves your settings in this browser.</td></tr>
+      <tr><td><code>activeTab</code>, <code>scripting</code></td><td>Prepares the current tab for page translation when you click the icon, use the shortcut, or the right-click menu.</td></tr>
+      <tr><td><code>contextMenus</code></td><td>Adds "Translate this page" to the right-click menu.</td></tr>
+      <tr><td>All sites (content script)</td><td>Shows the selection button and tooltip, and translates the page text in place.</td></tr>
+      <tr><td><code>api.anthropic.com</code>, <code>api.deepl.com</code>, <code>api-free.deepl.com</code></td><td>Calls the Claude and DeepL APIs.</td></tr>
+      <tr><td><code>localhost</code>, <code>127.0.0.1</code></td><td>Reaches a local 9router or local model server.</td></tr>
+      <tr><td>Optional per-address access</td><td>Requested only when you use 9router or Custom at another address.</td></tr>
+    </table></div>
+
+    <h2 id="d-privacy">Privacy and security</h2>
+    <ul>
+      <li>Text you select is sent only to the provider you chose, and only after you click the translate button. Page text is sent only after you start a page translation.</li>
+      <li>API keys are stored in <code>chrome.storage.local</code> on this device and are not synced to your Google account. Keys never enter the web page: all API calls are made by the service worker.</li>
+      <li>Translations are rendered as plain text, not HTML, so they cannot inject scripts.</li>
+      <li>The selection is treated as text to translate, not as instructions, to reduce prompt-injection risk from web pages. Do not translate confidential text through a provider you do not trust.</li>
+    </ul>
+
+    <h2 id="d-trouble">Troubleshooting</h2>
+    <div class="scroll"><table>
+      <tr><th>Symptom</th><th>Cause and fix</th></tr>
+      <tr><td>Button does not appear</td><td>Reload the page after installing or updating the extension. Check that the page is not <code>chrome://</code>, the Web Store, or the PDF viewer.</td></tr>
+      <tr><td>"Cannot reach…"</td><td>9router or the local service is not running, the base URL is wrong, or address access was not granted. Click Connect again and approve the permission.</td></tr>
+      <tr><td>401 / 403</td><td>The API key is wrong, expired, or lacks access to that model.</td></tr>
+      <tr><td>404</td><td>The base URL does not end in <code>/v1</code>, or the model is gone. Reload the model list.</td></tr>
+      <tr><td>429</td><td>Rate limit reached. Wait a moment or switch models.</td></tr>
+      <tr><td>456 (DeepL)</td><td>Monthly character quota used up.</td></tr>
+      <tr><td>Empty model list</td><td>No AI connected in 9router, or the key cannot read the model list.</td></tr>
+      <tr><td>Result includes extra commentary</td><td>Some small models ignore instructions. Choose a different model.</td></tr>
+      <tr><td>Firefox: selection button never appears</td><td>Click <strong>Allow access</strong> at the top of Settings, or enable "Access your data for all websites" under <code>about:addons</code> → Wraith Translate → Permissions.</td></tr>
+      <tr><td>Red ! on the icon, or "Couldn't reach this page"</td><td>The page cannot run extensions (<code>chrome://</code>, Web Store, PDF viewer), or it blocks scripts. Tabs opened before an install or update are prepared automatically; if it still fails, reload the tab.</td></tr>
+      <tr><td>Page only partly translated</td><td>Text inside code blocks, form fields, or hidden elements is skipped on purpose. Turn off "Translate as you scroll" to translate everything at once, or use Retry on the bar after an error.</td></tr>
+      <tr><td>"Extension was updated"</td><td>Reload the tab you are on.</td></tr>
+    </table></div>
+
+    <h2 id="d-install">Install</h2>
+    <p><strong>Chrome, Edge, Brave, Opera, Vivaldi, Arc</strong> (use the Chromium package):</p>
+    <ol>
+      <li>Extract the zip into a folder.</li>
+      <li>Open <code>chrome://extensions</code> (or <code>edge://extensions</code>, <code>brave://extensions</code>, <code>opera://extensions</code>, <code>vivaldi://extensions</code>) and turn on Developer mode.</li>
+      <li>Click Load unpacked and select the extracted folder.</li>
+      <li>After changing code, click the reload icon on the extension card, then reload the tab you are testing.</li>
+    </ol>
+    <p><strong>Firefox</strong> (use the Firefox package, Firefox 128 or newer):</p>
+    <ol>
+      <li>Open <code>about:debugging#/runtime/this-firefox</code> and click <strong>Load Temporary Add-on</strong>, then pick <code>manifest.json</code> from the extracted folder (or the zip). Temporary add-ons are removed when Firefox closes.</li>
+      <li>For a permanent install, sign the package at addons.mozilla.org (unlisted is fine), or use Firefox Developer Edition / Nightly with <code>xpinstall.signatures.required</code> set to false.</li>
+      <li>Open this settings page and click <strong>Allow access</strong> when the banner appears, so the selection button works on all sites.</li>
+    </ol>
+
+    <h2 id="d-files">Project files</h2>
+<pre><code>manifest.json        extension config (MV3)
+background.js        service worker: translate requests, popup/menu/shortcut triggers
+popup.html/css/js    toolbar popup: translate page, language, toggles, settings link
+content.js           selection button, tooltip, and full-page translator (Shadow DOM bar)
+options.html/css/js  this settings and docs page
+lib/providers.js     9router, Custom, Claude, DeepL calls (single and batch)
+lib/presets.js       OpenAI-compatible service presets
+lib/languages.js     language list and DeepL codes
+lib/defaults.js      defaults and settings reader
+icons/               16, 48, 128 px icons</code></pre>
+    <p>To add a provider: add an entry to <code>PROVIDERS</code> and a branch in <code>translate()</code> in <code>lib/providers.js</code>, add the API host to <code>host_permissions</code> in the manifest, then add a pane and radio option to the settings page.</p>
+  </section>
+</div>
+<script type="module" src="options.js"></script>
+</body>
+</html>
