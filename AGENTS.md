@@ -17,7 +17,7 @@ Browser extension (Manifest V3) that translates **selected text** and **whole pa
 | `background.js` | Service worker. Handles `translate`, `translateBatch`, `languages`, `openOptions`, `pageStatus`, `togglePage`; shortcut + context menu; injects `content.js` on demand |
 | `content.js` | Runs in every page/frame. Selection button + tooltip, and the full-page translator + bottom bar. UI lives in a **closed Shadow DOM** (`#wraithspeak-host`) |
 | `popup.html/css/js` | Toolbar popup: translate/restore page, target language, feature toggles, "Open settings" |
-| `options.html/css/js` | Settings tab (features, provider, language) and Docs tab. Opens in a tab |
+| `options.html/css/js` | Settings tab (features, provider, language) and Docs tab. Opens in a tab. Shows the installed version (badge next to the title, read from `chrome.runtime.getManifest()`) |
 | `lib/providers.js` | All API calls. `translate()` (single), `translateBatch()` (page), `listModels()`; `complete()` is the shared LLM call |
 | `lib/defaults.js` | `DEFAULTS`, `getSettings()` (deep-merges saved settings over defaults), `isConfigured()` |
 | `lib/languages.js` | Target languages + DeepL codes |

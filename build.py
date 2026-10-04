@@ -2,7 +2,7 @@
 """Builds browser packages from src/ into dist/.
 
   chromium/  Chrome, Edge, Brave, Opera, Vivaldi, Arc (Manifest V3 service worker)
-  firefox/   Firefox 128+ (Manifest V3 background script + gecko settings)
+  firefox/   Firefox 140+ (Manifest V3 background script + gecko settings)
 
 Usage: python3 build.py
 """
@@ -19,9 +19,11 @@ def firefox_manifest(m):
     m["browser_specific_settings"] = {
         "gecko": {
             "id": GECKO_ID,
-            "strict_min_version": "128.0",
+            # data_collection_permissions is understood from Firefox 140 (desktop) / 142 (Android).
+            "strict_min_version": "140.0",
             "data_collection_permissions": {"required": ["websiteContent"]},
-        }
+        },
+        "gecko_android": {"strict_min_version": "142.0"},
     }
     return m
 
