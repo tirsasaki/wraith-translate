@@ -1,74 +1,146 @@
 <div align="center">
 
-🌐 **English** · [Bahasa Indonesia](README.id.md)
+<img src="assets/logo-512.png" alt="Wraith Translate logo: a cyan ghost with a translation speech bubble" width="148" height="148">
 
-<img src="assets/logo.svg" alt="Wraith Translate" width="96" height="96">
+# Wraith Translate <img src="https://img.shields.io/badge/version-1.3.8-5DE0FF?style=flat-square&labelColor=1B1A2E" alt="version 1.3.8" align="top">
 
-# Wraith Translate
+<sub>🌐 **English** &nbsp;·&nbsp; [Bahasa Indonesia](README.id.md)</sub>
 
-**Select text or translate a whole page, right in your browser.**
+### Select text or translate a whole page, right in your browser.
 
-A Manifest V3 browser extension for **Chrome, Edge, Brave, Opera, Vivaldi, Arc, and Firefox** that works with **9router**, **OpenAI-compatible** services (OpenAI, OpenRouter, Groq, Gemini, DeepSeek, Ollama, and more), **Claude**, and **DeepL**.
+A lightweight, bring-your-own-AI translator for the browser.<br>
+No account. No backend. No tracking. Just your text and the provider you trust.
+
+<br>
+
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-A78BFA?style=for-the-badge&labelColor=1B1A2E)](src/manifest.json)
+[![Zero dependencies](https://img.shields.io/badge/runtime_deps-0-5DE0FF?style=for-the-badge&labelColor=1B1A2E)](#-build)
+[![Languages](https://img.shields.io/badge/target_languages-16-A78BFA?style=for-the-badge&labelColor=1B1A2E)](#-features)
+
+<sub>**Works with**</sub><br>
+![9router](https://img.shields.io/badge/9router-5DE0FF?style=flat-square&labelColor=1B1A2E)
+![OpenAI-compatible](https://img.shields.io/badge/OpenAI--compatible-A78BFA?style=flat-square&labelColor=1B1A2E)
+![Claude](https://img.shields.io/badge/Claude-5DE0FF?style=flat-square&labelColor=1B1A2E)
+![DeepL](https://img.shields.io/badge/DeepL-A78BFA?style=flat-square&labelColor=1B1A2E)
+![Ollama](https://img.shields.io/badge/Ollama-5DE0FF?style=flat-square&labelColor=1B1A2E)
+
+<sub>**Runs on** &nbsp;Chrome · Edge · Brave · Opera · Vivaldi · Arc · Firefox 140+</sub>
+
+<br>
+
+[**Features**](#-features) &nbsp;•&nbsp;
+[**Install**](#-installation) &nbsp;•&nbsp;
+[**Providers**](#-provider-setup) &nbsp;•&nbsp;
+[**Usage**](#-usage) &nbsp;•&nbsp;
+[**Privacy**](#-permissions-and-privacy) &nbsp;•&nbsp;
+[**Develop**](#-build)
 
 </div>
 
+<br>
+
 ---
 
-## Table of contents
-- [Features](#features)
-- [Browser support](#browser-support)
-- [Installation](#installation)
-- [Provider setup](#provider-setup)
-- [Usage](#usage)
-- [Settings](#settings)
-- [Permissions and privacy](#permissions-and-privacy)
-- [Project structure](#project-structure)
-- [Build](#build)
-- [Testing](#testing)
-- [Troubleshooting](#troubleshooting)
-- [Limitations](#limitations)
-- [Contributing](#contributing)
+## ✨ Features
 
-## Features
-- **Translate selected text**: select text, click the small button next to it, and the result appears in a tooltip (with a Copy button and a *Translate to* menu for other languages that does not change your saved setting).
-- **Translate a full page** with two display modes:
-  - **Replace text**: text is swapped in place and the page layout is kept.
-  - **Show both**: the translation is added under each paragraph while the original stays visible.
-- **Translate as you scroll** (lazy): only text near the screen is sent to your provider; the rest is translated as you reach it. Saves time and cost on long pages.
-- **Toolbar popup**: click the extension icon for a *Translate this page* / *Show original page* button, target language, feature switches, and *Open settings*.
-- **On-page bar**: progress, language switcher, an *Original/Translation* toggle, Retry on errors, and a close button that restores the page.
-- **Shortcut and context menu**: `Alt+W` and *Translate this page with Wraith Translate*.
-- **4 provider types**: 9router, Custom (OpenAI-compatible), Claude, DeepL. Only the selected provider is used; settings for the others stay saved.
-- **16 target languages**: Indonesian, English, Japanese, Korean, Chinese (Simplified), Arabic, Spanish, French, German, Portuguese (Brazil), Russian, Italian, Dutch, Turkish, Polish, Ukrainian. The source language is detected automatically.
-- **Batching and caching**: text is sent in groups and identical strings are translated once. If a model breaks the reply format, the batch is split automatically until it works.
-- **Page-safe**: code (`<pre>`, `<code>`), form fields, `translate="no"` / `class="notranslate"` elements, and hidden elements are left alone.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-## Browser support
+### 🔤 Selection translate
+Select text, click the small **文** button, and read the result in a tooltip. Includes a **Copy** button and a *Translate to* menu that never changes your saved language.
+
+</td>
+<td width="50%" valign="top">
+
+### 📄 Whole-page translate
+Two display modes:
+- **Replace text**: swaps text in place, layout stays intact.
+- **Show both**: adds the translation under each paragraph, original stays visible.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 📜 Translate as you scroll
+Only text near the screen is sent to your provider; the rest is translated as you reach it. Saves time and cost on long pages.
+
+</td>
+<td width="50%" valign="top">
+
+### 🧰 Popup, bar, shortcut
+Toolbar popup, an on-page bar with progress, language switcher, *Original/Translation* toggle and Retry. Press **`Alt+W`** or use the right-click menu.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🔌 4 provider types
+**9router**, **Custom (OpenAI-compatible)**, **Claude**, **DeepL**. Only the selected provider is used; settings for the others stay saved.
+
+</td>
+<td width="50%" valign="top">
+
+### 🌍 16 target languages
+Indonesian, English, Japanese, Korean, Chinese (Simplified), Arabic, Spanish, French, German, Portuguese (Brazil), Russian, Italian, Dutch, Turkish, Polish, Ukrainian. Source language is detected automatically.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### ⚡ Batching and caching
+Text is sent in groups and identical strings are translated once. If a model breaks the reply format, the batch is split automatically until it works.
+
+</td>
+<td width="50%" valign="top">
+
+### 🛡️ Page-safe
+Code (`<pre>`, `<code>`), form fields, `translate="no"` / `class="notranslate"` elements, and hidden elements are left alone.
+
+</td>
+</tr>
+</table>
+
+## 🌐 Browser support
 
 | Browser | Package | Status |
 |---|---|---|
-| Chrome, Edge, Brave, Opera, Vivaldi, Arc | `wraith-translate-chromium-v*.zip` | Tested on Chromium |
-| Firefox 140+ | `wraith-translate-firefox-v*.zip` | Passes `web-ext lint`; tested manually in Firefox (temporary add-on) |
-| Safari (macOS/iOS) | not built | Needs Xcode: `xcrun safari-web-extension-converter dist/chromium` |
+| Chrome, Edge, Brave, Opera, Vivaldi, Arc | `wraith-translate-chromium-v*.zip` | ✅ Tested on Chromium |
+| Firefox 140+ | `wraith-translate-firefox-v*.zip` | ✅ Passes `web-ext lint`; tested manually (temporary add-on) |
+| Safari (macOS/iOS) | not built | ⚠️ Needs Xcode: `xcrun safari-web-extension-converter dist/chromium` |
 
-## Installation
+## 📦 Installation
 
-### Chrome, Edge, Brave, Opera, Vivaldi, Arc
-1. Extract `wraith-translate-chromium-v*.zip` into a folder (or run the [build](#build) and use `dist/chromium`).
+<details open>
+<summary><b>Chrome, Edge, Brave, Opera, Vivaldi, Arc</b></summary>
+
+1. Extract `wraith-translate-chromium-v*.zip` into a folder (or run the [build](#-build) and use `dist/chromium`).
 2. Open the extensions page: `chrome://extensions` (`edge://extensions`, `brave://extensions`, `opera://extensions`, `vivaldi://extensions`).
 3. Turn on **Developer mode**, click **Load unpacked**, and choose the extracted folder.
 4. The settings page opens automatically. Pick a provider, enter its details, click **Save settings**, then **Test translation**.
 
-After changing code, click the reload icon on the extension card, then reload the tab you are testing.
+> [!TIP]
+> After changing code, click the reload icon on the extension card, then reload the tab you are testing.
 
-### Firefox (140 or newer)
+</details>
+
+<details>
+<summary><b>Firefox (140 or newer)</b></summary>
+
 1. Open `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on** → choose `manifest.json` from `dist/firefox` (or the zip). Temporary add-ons are removed when Firefox closes.
 2. For a permanent install, sign the package at [addons.mozilla.org](https://addons.mozilla.org) (the *unlisted* channel is enough), or use Firefox Developer Edition / Nightly with `xpinstall.signatures.required` set to `false`.
 3. Open the settings page and click **Allow access** on the banner so the selection button works on all sites. (Page translation from the popup works without this permission.)
 
-## Provider setup
+</details>
 
-### 9router
+## 🔑 Provider setup
+
+<details open>
+<summary><b>9router</b></summary>
+
 1. Make sure 9router is running and at least one AI connection is active in its dashboard.
 2. **Base URL**: for example `http://localhost:20128/v1` (or your server address).
 3. **API key**: from the 9router dashboard (leave empty if auth is off).
@@ -77,7 +149,11 @@ After changing code, click the reload icon on the extension card, then reload th
 
 Translations go to `POST {baseUrl}/chat/completions` with an `Authorization: Bearer …` header. For any address other than `localhost` / `127.0.0.1`, the browser asks for access when you click Connect or Save.
 
-### Custom (OpenAI-compatible)
+</details>
+
+<details>
+<summary><b>Custom (OpenAI-compatible)</b></summary>
+
 Choose a **Service** preset, or *Other* and type your own Base URL.
 
 | Preset | Base URL |
@@ -94,25 +170,36 @@ Choose a **Service** preset, or *Other* and type your own Base URL.
 
 If Ollama answers with 403, start it with `OLLAMA_ORIGINS=chrome-extension://*`. Some services do not offer `/models`; check that service's documentation.
 
-### Claude
+</details>
+
+<details>
+<summary><b>Claude</b></summary>
+
 Create an API key in the Anthropic Console, paste it into **API key**, click **Load models** (`GET https://api.anthropic.com/v1/models`), pick a model, and save. Translations use `POST /v1/messages`. Smaller models are usually faster and cheaper for short translations.
 
-### DeepL
+</details>
+
+<details>
+<summary><b>DeepL</b></summary>
+
 Paste your authentication key. Keys ending in `:fx` automatically use `api-free.deepl.com`; all others use `api.deepl.com`. There is no model choice. When the quota runs out you get error 456.
 
-### Choosing a provider
+</details>
+
+### Which provider should I pick?
 
 | | 9router | Custom | Claude | DeepL |
 |---|---|---|---|---|
-| Type | Gateway to many AI models | Language model, per service | Language model | Translation engine |
-| Model choice | From your 9router | From the service | From your account | None |
-| Speed | Depends on model | Depends on service | Fast to medium | Very fast |
-| Context and style | Good | Good | Very good | Limited, consistent |
-| Cost | Follows the backing provider | Follows the service | Pay per token | Free tier with limits, or Pro |
+| **Type** | Gateway to many AI models | Language model, per service | Language model | Translation engine |
+| **Model choice** | From your 9router | From the service | From your account | None |
+| **Speed** | Depends on model | Depends on service | Fast to medium | Very fast |
+| **Context and style** | Good | Good | Very good | Limited, consistent |
+| **Cost** | Follows the backing provider | Follows the service | Pay per token | Free tier with limits, or Pro |
 
-> Speed tip: language models write the result token by token, so they are slower than DeepL. Choose a small, fast model (*flash*, *mini*, *haiku* variants) and avoid *reasoning* models for translation.
+> [!TIP]
+> Language models write the result token by token, so they are slower than DeepL. Choose a small, fast model (*flash*, *mini*, *haiku* variants) and avoid *reasoning* models for translation.
 
-## Usage
+## 🚀 Usage
 
 ### Selected text
 1. Select text on a web page.
@@ -120,14 +207,18 @@ Paste your authentication key. Keys ending in `:fx` automatically use `api-free.
 3. Read the result in the tooltip. Press `Esc` or click elsewhere to close it. Each translation is limited to **5,000 characters**.
 
 ### Full page
-- Click the extension icon → **Translate this page**, or
-- right-click → **Translate this page with Wraith Translate**, or
-- press **`Alt+W`** (change it at `chrome://extensions/shortcuts` / `about:addons` → Manage Extension Shortcuts).
 
-To restore the page: popup → **Show original page**, the × on the bar, or `Alt+W` again.
+| Method | How |
+|---|---|
+| Toolbar | Click the extension icon → **Translate this page** |
+| Right-click | **Translate this page with Wraith Translate** |
+| Shortcut | **`Alt+W`** (change it at `chrome://extensions/shortcuts` / `about:addons` → Manage Extension Shortcuts) |
 
-## Settings
-Settings page (**Settings** tab; *Open settings* button in the popup):
+To restore the page: popup → **Show original page**, the **×** on the bar, or `Alt+W` again.
+
+## ⚙️ Settings
+
+Open the **Settings** tab (or *Open settings* in the popup):
 
 | Setting | Effect |
 |---|---|
@@ -135,11 +226,11 @@ Settings page (**Settings** tab; *Open settings* button in the popup):
 | Translate full page | Off disables the popup button, shortcut, and context menu, and restores any translated page |
 | Page display | *Replace text* or *Show both* (applies to the next page translation) |
 | Translate as you scroll | On: translate near-screen text only. Off: translate everything at once |
-| Provider and target language | See [Provider setup](#provider-setup) |
+| Provider and target language | See [Provider setup](#-provider-setup) |
 
 Feature changes apply to open tabs immediately, without a reload. The **Docs** tab contains full documentation inside the extension.
 
-## Permissions and privacy
+## 🔒 Permissions and privacy
 
 | Permission | Why |
 |---|---|
@@ -151,11 +242,14 @@ Feature changes apply to open tabs immediately, without a reload. The **Docs** t
 | `localhost`, `127.0.0.1` | Local 9router or local model server |
 | Optional per-address access | Requested only when 9router/Custom uses another address |
 
-- Selected text is sent only to the provider you chose, and only after you click the translate button. Page text is sent only after you start a page translation.
-- API keys are stored in `chrome.storage.local` on this device (not synced to your browser account). Keys never enter the web page: all API calls are made by the service worker.
-- Translations are rendered as plain text, not HTML, and the source text is treated as data rather than instructions, to reduce prompt-injection risk from web pages. Do not translate confidential text through a provider you do not trust.
+- 📤 Selected text is sent **only to the provider you chose**, and only after you click the translate button. Page text is sent only after you start a page translation.
+- 🗝️ API keys are stored in `chrome.storage.local` on this device (not synced to your browser account). Keys never enter the web page: all API calls are made by the service worker.
+- 🧱 Translations are rendered as plain text, not HTML, and the source text is treated as data rather than instructions, to reduce prompt-injection risk from web pages.
 
-## Project structure
+> [!WARNING]
+> Do not translate confidential text through a provider you do not trust. Read the full [privacy policy](PRIVACY.md).
+
+## 🧩 Project structure
 
 ```
 .
@@ -171,6 +265,7 @@ Feature changes apply to open tabs immediately, without a reload. The **Docs** t
 │   │   ├── languages.js    language list + DeepL codes
 │   │   └── presets.js      OpenAI-compatible service presets
 │   └── icons/              16, 48, 128 px
+├── assets/                 logo (SVG + PNG), social preview, store icon
 ├── build.py                builds dist/chromium, dist/firefox, and zips
 ├── tests/                  end-to-end tests (Playwright + Chromium)
 ├── AGENTS.md               architecture guide for developers / AI assistants
@@ -179,25 +274,40 @@ Feature changes apply to open tabs immediately, without a reload. The **Docs** t
 └── dist/                   build output (generated, do not edit)
 ```
 
-Architecture in short: `content.js` sends `translate` / `translateBatch` messages to `background.js`, which reads the settings and calls `lib/providers.js`. Message flow, the batch protocol, and how to add providers, languages, or settings are documented in [`AGENTS.md`](AGENTS.md).
+### How it works
 
-## Build
+```mermaid
+flowchart LR
+    A["content.js<br/>selection · tooltip · page bar"] -- "translate / translateBatch" --> B["background.js<br/>service worker"]
+    P["popup.js"] -- "togglePage / pageStatus" --> B
+    B --> C["lib/providers.js"]
+    C --> D1["9router"]
+    C --> D2["OpenAI-compatible"]
+    C --> D3["Claude"]
+    C --> D4["DeepL"]
+```
+
+`content.js` sends messages to `background.js`, which reads the settings and calls `lib/providers.js`. Message flow, the batch protocol, and how to add providers, languages, or settings are documented in [`AGENTS.md`](AGENTS.md).
+
+## 🛠️ Build
+
 No runtime dependencies or bundler. Requires Python 3:
 
 ```bash
 python3 build.py
 ```
 
-Output:
 ```
 dist/chromium/                              folder ready for Load unpacked
 dist/firefox/                               folder ready for Load Temporary Add-on
 dist/wraith-translate-chromium-v<ver>.zip
 dist/wraith-translate-firefox-v<ver>.zip
 ```
+
 The Firefox manifest is derived automatically from `src/manifest.json` (background script + `browser_specific_settings.gecko`). Bump `version` in `src/manifest.json` for each release. Firefox lint: `npx web-ext lint -s dist/firefox`.
 
-## Testing
+## 🧪 Testing
+
 Automated tests use a local mock OpenAI server and headless Chromium:
 
 ```bash
@@ -206,10 +316,11 @@ python3 build.py
 python3 tests/e2e_page.py            # replace/bilingual/lazy/restore, code and notranslate skipped, feature toggles, error path
 python3 tests/e2e_popup_inject.py    # popup saves settings, togglePage, on-demand script injection
 ```
+
 Test screenshots are saved to `tests/out/`.
 
 <details>
-<summary>Manual test scenarios</summary>
+<summary><b>Manual test scenarios</b></summary>
 
 1. 9router: Connect, the model list appears, pick one, save, *Test translation* succeeds.
 2. Select a sentence on a normal page: the button appears, click it, and the tooltip shows the full result with no inner scrollbar.
@@ -231,7 +342,12 @@ Test screenshots are saved to `tests/out/`.
 
 </details>
 
-## Troubleshooting
+## 🩺 Troubleshooting
+
+<details>
+<summary><b>Open the symptom table</b></summary>
+
+<br>
 
 | Symptom | Cause and fix |
 |---|---|
@@ -248,11 +364,30 @@ Test screenshots are saved to `tests/out/`.
 | Page only partly translated | Code, form fields, and hidden elements are skipped on purpose. Turn off *Translate as you scroll* to translate everything at once, or press Retry after an error. |
 | "Extension was updated" | Reload the tab you are on. |
 
-## Limitations
+</details>
+
+## 📌 Limitations
+
 - *Replace text* mode translates piece by piece, so sentences split by inline tags (`<b>`, `<a>`) are translated separately. *Show both* translates whole blocks and reads more naturally.
 - Content loaded after translation starts (infinite scroll) is translated once scrolling settles; constantly changing dynamic content may trigger repeated translations.
 - Translations are not streamed; the result appears once the full reply arrives.
 - Firefox was tested manually as a temporary add-on only (no automated Firefox tests); Safari is not built.
 
-## Contributing
+## 🤝 Contributing
+
 Edit only `src/`, run `python3 build.py`, then run the tests above. Full rules and guidance (file map, message protocol, how to add a provider, language, or setting, common pitfalls) are in [`AGENTS.md`](AGENTS.md).
+
+> [!NOTE]
+> Keep `README.md` and `README.id.md` in sync when you change documentation.
+
+<br>
+
+---
+
+<div align="center">
+
+<img src="assets/logo.svg" alt="Wraith Translate" width="44" height="44">
+
+<sub>**Wraith Translate** · v1.3.8 · Translate quietly, like a ghost 👻</sub>
+
+</div>
