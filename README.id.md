@@ -48,7 +48,7 @@ Extension browser (Manifest V3) untuk **Chrome, Edge, Brave, Opera, Vivaldi, Arc
 | Browser | Paket | Status |
 |---|---|---|
 | Chrome, Edge, Brave, Opera, Vivaldi, Arc | `wraith-translate-chromium-v*.zip` | Diuji di Chromium |
-| Firefox 128+ | `wraith-translate-firefox-v*.zip` | Lolos `web-ext lint`; belum diuji di Firefox sungguhan |
+| Firefox 128+ | `wraith-translate-firefox-v*.zip` | Lolos `web-ext lint`; sudah diuji manual di Firefox (add-on sementara) |
 | Safari (macOS/iOS) | belum dibuat | Perlu Xcode: `xcrun safari-web-extension-converter dist/chromium` |
 
 ## Instalasi
@@ -250,7 +250,7 @@ Screenshot hasil tes tersimpan di `tests/out/`.
 - Mode *Replace text* menerjemahkan per potongan teks, sehingga kalimat yang dipecah tag inline (`<b>`, `<a>`) diterjemahkan terpisah. Mode *Show both* menerjemahkan per blok dan hasilnya lebih natural.
 - Konten yang dimuat setelah translate dimulai (infinite scroll) diterjemahkan setelah scroll berhenti sebentar; konten dinamis yang terus berganti bisa memicu terjemahan berulang.
 - Terjemahan tidak di-stream; hasil tampil setelah balasan lengkap diterima.
-- Firefox belum diuji di browser sungguhan; Safari belum dibangun.
+- Firefox baru diuji manual sebagai add-on sementara (belum ada tes otomatis Firefox); Safari belum dibangun.
 
 ## Kontribusi
 Edit hanya `src/`, jalankan `python3 build.py`, lalu jalankan tes di atas. Aturan dan panduan lengkap (peta file, protokol pesan, cara menambah provider/bahasa/pengaturan, jebakan umum) ada di [`AGENTS.md`](AGENTS.md).
