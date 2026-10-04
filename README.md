@@ -48,7 +48,7 @@ A Manifest V3 browser extension for **Chrome, Edge, Brave, Opera, Vivaldi, Arc, 
 | Browser | Package | Status |
 |---|---|---|
 | Chrome, Edge, Brave, Opera, Vivaldi, Arc | `wraith-translate-chromium-v*.zip` | Tested on Chromium |
-| Firefox 128+ | `wraith-translate-firefox-v*.zip` | Passes `web-ext lint`; not yet tested in a real Firefox |
+| Firefox 128+ | `wraith-translate-firefox-v*.zip` | Passes `web-ext lint`; tested manually in Firefox (temporary add-on) |
 | Safari (macOS/iOS) | not built | Needs Xcode: `xcrun safari-web-extension-converter dist/chromium` |
 
 ## Installation
@@ -250,7 +250,7 @@ Test screenshots are saved to `tests/out/`.
 - *Replace text* mode translates piece by piece, so sentences split by inline tags (`<b>`, `<a>`) are translated separately. *Show both* translates whole blocks and reads more naturally.
 - Content loaded after translation starts (infinite scroll) is translated once scrolling settles; constantly changing dynamic content may trigger repeated translations.
 - Translations are not streamed; the result appears once the full reply arrives.
-- Firefox has not been tested in a real browser yet; Safari is not built.
+- Firefox was tested manually as a temporary add-on only (no automated Firefox tests); Safari is not built.
 
 ## Contributing
 Edit only `src/`, run `python3 build.py`, then run the tests above. Full rules and guidance (file map, message protocol, how to add a provider, language, or setting, common pitfalls) are in [`AGENTS.md`](AGENTS.md).

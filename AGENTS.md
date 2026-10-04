@@ -80,7 +80,7 @@ Needs Python + Playwright with Chromium: `pip install playwright`. Run after `py
 python3 tests/e2e_page.py           # replace/bilingual/lazy/restore, notranslate+code skipped, feature toggles, error path
 python3 tests/e2e_popup_inject.py   # popup settings save, togglePage, on-demand injection (manifest without content_scripts)
 ```
-Both start a local mock OpenAI server, load `dist/chromium` in headless Chromium, and print `PASS`/`FAIL`. Screenshots go to `tests/out/`. Firefox is only linted: `npx web-ext lint -s dist/firefox`. Manual scenarios are in `README.md` (English) and `README.id.md` (Indonesian); keep both READMEs in sync.
+Both start a local mock OpenAI server, load `dist/chromium` in headless Chromium, and print `PASS`/`FAIL`. Screenshots go to `tests/out/`. Firefox has no automated tests: it is linted (`npx web-ext lint -s dist/firefox`) and was verified manually as a temporary add-on (`npx web-ext run -s dist/firefox` for live reload). Manual scenarios are in `README.md` (English) and `README.id.md` (Indonesian); keep both READMEs in sync.
 
 ## Gotchas
 - `content.js` is a classic script (no `import`); it can't share code with `lib/`.
