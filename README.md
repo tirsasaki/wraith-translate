@@ -2,7 +2,7 @@
 
 🌐 **English** · [Bahasa Indonesia](README.id.md)
 
-<img src="src/icons/icon128.png" alt="Wraith Translate" width="96" height="96">
+<img src="assets/logo.svg" alt="Wraith Translate" width="96" height="96">
 
 # Wraith Translate
 
