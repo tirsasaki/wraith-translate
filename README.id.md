@@ -422,14 +422,6 @@ Screenshot tes disimpan di `tests/out/`.
 - Terjemahan teks terseleksi tampil bertahap saat model menulisnya. Terjemahan satu halaman terisi per batch (satu batch muncul setelah seluruh balasannya selesai).
 - Firefox hanya diuji manual sebagai add-on sementara (belum ada tes otomatis Firefox); Safari belum dibuat.
 
-## 🆕 Yang baru di 1.4.0
-
-- 🌊 **Streaming** untuk teks terseleksi: tooltip terisi saat model menulis, dan menutupnya membatalkan request.
-- ⚡ **Halaman lebih cepat**: batch lebih kecil (12 string / 1.000 karakter), 5 paralel, teks di layar lebih dulu, dan batch yang dirusak model dipecah secara paralel, tidak lagi satu belahan demi satu.
-- 🔁 **Request lebih tangguh**: retry otomatis dengan backoff pada 429/5xx (`Retry-After` dihormati), batas waktu 90 detik, dan blok `<think>…</think>` dari model lokal dibuang.
-- 🧠 **Thinking lebih ringan**: untuk model yang berpikir (Gemini, GPT-5, Qwen3, …) extension meminta reasoning paling sedikit yang diterima server dan mengingat apa yang berhasil; model lain memakai `temperature: 0`.
-- 🏁 **Model rekomendasi** bertanda ★ di Settings dengan tombol sekali klik, plus tabel kecepatan hasil pengukuran di atas.
-
 ## 🤝 Kontribusi
 
 Edit hanya `src/`, jalankan `python3 build.py`, lalu jalankan tes di atas. Aturan dan panduan lengkap (peta file, protokol pesan, cara menambah provider, bahasa, atau pengaturan, jebakan umum) ada di [`AGENTS.md`](AGENTS.md).

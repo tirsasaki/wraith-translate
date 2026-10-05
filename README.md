@@ -422,14 +422,6 @@ Test screenshots are saved to `tests/out/`.
 - Selected-text translations stream in as the model writes them. Full-page translation fills in per batch (a batch appears once its whole reply arrives).
 - Firefox was tested manually as a temporary add-on only (no automated Firefox tests); Safari is not built.
 
-## 🆕 What's new in 1.4.0
-
-- 🌊 **Streaming** for selected text: the tooltip fills in as the model writes, and closing it cancels the request.
-- ⚡ **Faster pages**: smaller batches (12 strings / 1,000 characters), 5 in parallel, on-screen text first, and a garbled batch is split in parallel instead of one half at a time.
-- 🔁 **Sturdier requests**: automatic retry with backoff on 429/5xx (`Retry-After` respected), a 90 s timeout, and `<think>…</think>` blocks from local models are stripped.
-- 🧠 **Lighter thinking**: for models that think (Gemini, GPT-5, Qwen3, …) the extension asks for the least reasoning the server accepts and remembers what worked; other models get `temperature: 0`.
-- 🏁 **Recommended models** marked ★ in Settings with one-click buttons, plus the measured speed table above.
-
 ## 🤝 Contributing
 
 Edit only `src/`, run `python3 build.py`, then run the tests above. Full rules and guidance (file map, message protocol, how to add a provider, language, or setting, common pitfalls) are in [`AGENTS.md`](AGENTS.md).
