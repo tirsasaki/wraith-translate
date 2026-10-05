@@ -2,7 +2,7 @@
 
 <img src="assets/logo-512.png" alt="Wraith Translate logo: a cyan ghost with a translation speech bubble" width="148" height="148">
 
-# Wraith Translate <img src="https://img.shields.io/badge/version-1.3.8-5DE0FF?style=flat-square&labelColor=1B1A2E" alt="version 1.3.8" align="top">
+# Wraith Translate <img src="https://img.shields.io/badge/version-1.4.0-5DE0FF?style=flat-square&labelColor=1B1A2E" alt="version 1.4.0" align="top">
 
 <sub>🌐 **English** &nbsp;·&nbsp; [Bahasa Indonesia](README.id.md)</sub>
 
@@ -48,7 +48,7 @@ No account. No backend. No tracking. Just your text and the provider you trust.
 <td width="50%" valign="top">
 
 ### 🔤 Selection translate
-Select text, click the small **文** button, and read the result in a tooltip. Includes a **Copy** button and a *Translate to* menu that never changes your saved language.
+Select text, click the small **文** button, and read the result in a tooltip. Includes a **Copy** button and a *Translate to* menu that never changes your saved language. The translation **streams in** as the model writes it.
 
 </td>
 <td width="50%" valign="top">
@@ -91,8 +91,8 @@ Indonesian, English, Japanese, Korean, Chinese (Simplified), Arabic, Spanish, Fr
 <tr>
 <td width="50%" valign="top">
 
-### ⚡ Batching and caching
-Text is sent in groups and identical strings are translated once. If a model breaks the reply format, the batch is split automatically until it works.
+### ⚡ Fast and resilient
+Page text goes out in small parallel batches (12 strings, 5 at a time, on-screen text first) and identical strings are translated once. Rate-limit and server errors are retried with backoff, and a batch the model garbles is split automatically.
 
 </td>
 <td width="50%" valign="top">
@@ -197,7 +197,55 @@ Paste your authentication key. Keys ending in `:fx` automatically use `api-free.
 | **Cost** | Follows the backing provider | Follows the service | Pay per token | Free tier with limits, or Pro |
 
 > [!TIP]
-> Language models write the result token by token, so they are slower than DeepL. Choose a small, fast model (*flash*, *mini*, *haiku* variants) and avoid *reasoning* models for translation.
+> Language models write the result token by token, so they are slower than DeepL. Choose a small, fast model (*flash*, *mini*, *haiku* variants) and avoid *reasoning* models for translation. Measured results are in [Choosing a model](#-choosing-a-model).
+
+### 🏁 Choosing a model
+
+Translation needs no reasoning, so the best models are **small and fast**. In **Settings**, recommended models are marked with **★** and offered as one-click buttons under the model list (the recommendations live in `src/lib/recommended.js`).
+
+Here is a speed test, so you do not have to repeat it. Setup: models reached through [9router](https://github.com/decolua/9router) on a local PC, one prompt (`Translate to Indonesian: CachyOS Dethroned SteamOS on Steam — Desktop Linux Gaming Has a New Center of Gravity`), streaming on, two runs each, on 2026-10-04. Times are seconds until the **first word / until finished**, measured with `curl`.
+
+| Model | Run 1 | Run 2 | Verdict |
+|---|---|---|---|
+| `gemini/gemini-3.5-flash-lite` | 0.87 / 1.21 | 0.83 / 1.14 | 🥇 **Fastest and steady. Recommended.** |
+| `kr/claude-haiku-4.5` | 3.03 / 3.04 | 1.47 / 1.47 | 👍 Good alternative |
+| `gemini/gemini-3.1-flash-lite-preview` | 3.63 / 3.89 | 2.02 / 2.37 | 👌 OK |
+| `kr/deepseek-3.2` | 2.22 / 2.22 | 8.43 / 8.43 | ⚠️ Uneven |
+| `ag/gemini-3.8-flash-low` | 2.66 / 3.39 | 6.17 / 7.20 | ⚠️ Uneven |
+| `ag/gemini-3-flash` | 8.94 / 9.54 | 12.47 / 12.75 | 🐌 Slow: avoid |
+| `gemini/gemma-4-31b-it` | 22.44 / 24.18 | 27.95 / 59.49 | 🐌 Very slow: avoid |
+| `ag/gemini-3.5-flash-extra-low` | n/a | n/a | ❌ Discontinued (see below) |
+| `cx/gpt-5.4-mini` | n/a | n/a | ❔ HTTP 400 on this request, not measured |
+
+**What the test showed**
+
+- **The model decides the speed, not the extension.** Once the first word arrives, a short translation finishes in about half a second. The wait is before the first word, and it differs a lot between models and routes.
+- **Asking for less thinking did not help here.** On `ag/gemini-3-flash`, `reasoning_effort` values `none`, `minimal`, `low`, and the default all stayed between 4.6 and 12.5 s until the first word, because 9router reports that setting as unsupported for those models. The extension still sends the lightest setting each model accepts (and remembers it), but picking a fast model is what works.
+- **A discontinued model can look like success.** `ag/gemini-3.5-flash-extra-low` answered in 0.09 s with HTTP 200, but the "translation" was the message *"Gemini 3.5 Flash is no longer available…"*. If a result looks too fast to be true, read the output.
+- A "lite" model is the fastest but may sound less polished on long or nuanced text. If so, `kr/claude-haiku-4.5` (or a Claude Haiku through the Claude provider) is the next step up.
+
+> [!NOTE]
+> This is one prompt, two runs, one machine and network, through one gateway. Model names and availability change often, and results vary with load and location. Treat the ranking as a guide and repeat the test with your own models.
+
+<details>
+<summary><b>Run the speed test yourself</b></summary>
+
+```bash
+KEY="YOUR_9ROUTER_KEY"            # leave out the Authorization header if your gateway has no auth
+URL=http://localhost:20128/v1/chat/completions
+for M in gemini/gemini-3.5-flash-lite kr/claude-haiku-4.5 YOUR/OTHER-MODEL; do
+  echo "== $M"
+  for i in 1 2; do
+    curl -s -o /dev/null -w "status=%{http_code} first-word=%{time_starttransfer}s total=%{time_total}s\n" $URL \
+      -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' \
+      -d "{\"model\":\"$M\",\"stream\":true,\"max_tokens\":80,\"messages\":[{\"role\":\"user\",\"content\":\"Translate to Indonesian: CachyOS Dethroned SteamOS on Steam — Desktop Linux Gaming Has a New Center of Gravity\"}]}"
+  done
+done
+```
+
+`first-word` is what you feel as "waiting". `status` should be `200`; otherwise the model is not available to you. Add `"reasoning_effort":"low"` to the JSON to see whether your model reacts to it.
+
+</details>
 
 ## 🚀 Usage
 
@@ -226,7 +274,7 @@ Open the **Settings** tab (or *Open settings* in the popup):
 | Translate full page | Off disables the popup button, shortcut, and context menu, and restores any translated page |
 | Page display | *Replace text* or *Show both* (applies to the next page translation) |
 | Translate as you scroll | On: translate near-screen text only. Off: translate everything at once |
-| Provider and target language | See [Provider setup](#-provider-setup) |
+| Provider, model, and target language | See [Provider setup](#-provider-setup). Recommended models are marked ★ and offered as one-click buttons, see [Choosing a model](#-choosing-a-model) |
 
 Feature changes apply to open tabs immediately, without a reload. The **Docs** tab contains full documentation inside the extension.
 
@@ -262,6 +310,7 @@ Feature changes apply to open tabs immediately, without a reload. The **Docs** t
 │   ├── lib/
 │   │   ├── providers.js    API calls (single + batch)
 │   │   ├── defaults.js     defaults and settings reader
+│   │   ├── recommended.js  recommended models shown in Settings
 │   │   ├── languages.js    language list + DeepL codes
 │   │   └── presets.js      OpenAI-compatible service presets
 │   └── icons/              16, 48, 128 px
@@ -278,7 +327,7 @@ Feature changes apply to open tabs immediately, without a reload. The **Docs** t
 
 ```mermaid
 flowchart LR
-    A["content.js<br/>selection · tooltip · page bar"] -- "translate / translateBatch" --> B["background.js<br/>service worker"]
+    A["content.js<br/>selection · tooltip · page bar"] -- "translateStream (port) / translateBatch" --> B["background.js<br/>service worker"]
     P["popup.js"] -- "togglePage / pageStatus" --> B
     B --> C["lib/providers.js"]
     C --> D1["9router"]
@@ -287,7 +336,7 @@ flowchart LR
     C --> D4["DeepL"]
 ```
 
-`content.js` sends messages to `background.js`, which reads the settings and calls `lib/providers.js`. Message flow, the batch protocol, and how to add providers, languages, or settings are documented in [`AGENTS.md`](AGENTS.md).
+`content.js` talks to `background.js` (selected text over a streaming port, page batches as messages), which reads the settings and calls `lib/providers.js`. Message flow, the batch protocol, and how to add providers, languages, or settings are documented in [`AGENTS.md`](AGENTS.md).
 
 ## 🛠️ Build
 
@@ -360,7 +409,7 @@ Test screenshots are saved to `tests/out/`.
 | 456 (DeepL) | Monthly character quota used up. |
 | Empty model list | No AI connected in 9router, or the key cannot read the model list. |
 | Result includes extra commentary | Some small models ignore instructions. Choose a different model. |
-| Translation is slow | Language models write token by token; pick a small/fast model, avoid reasoning models, or use DeepL. |
+| Translation is slow | Usually the model, not the extension. Pick a model marked ★ in Settings, avoid reasoning models, or use DeepL. See [Choosing a model](#-choosing-a-model). |
 | Page only partly translated | Code, form fields, and hidden elements are skipped on purpose. Turn off *Translate as you scroll* to translate everything at once, or press Retry after an error. |
 | "Extension was updated" | Reload the tab you are on. |
 
@@ -370,8 +419,16 @@ Test screenshots are saved to `tests/out/`.
 
 - *Replace text* mode translates piece by piece, so sentences split by inline tags (`<b>`, `<a>`) are translated separately. *Show both* translates whole blocks and reads more naturally.
 - Content loaded after translation starts (infinite scroll) is translated once scrolling settles; constantly changing dynamic content may trigger repeated translations.
-- Translations are not streamed; the result appears once the full reply arrives.
+- Selected-text translations stream in as the model writes them. Full-page translation fills in per batch (a batch appears once its whole reply arrives).
 - Firefox was tested manually as a temporary add-on only (no automated Firefox tests); Safari is not built.
+
+## 🆕 What's new in 1.4.0
+
+- 🌊 **Streaming** for selected text: the tooltip fills in as the model writes, and closing it cancels the request.
+- ⚡ **Faster pages**: smaller batches (12 strings / 1,000 characters), 5 in parallel, on-screen text first, and a garbled batch is split in parallel instead of one half at a time.
+- 🔁 **Sturdier requests**: automatic retry with backoff on 429/5xx (`Retry-After` respected), a 90 s timeout, and `<think>…</think>` blocks from local models are stripped.
+- 🧠 **Lighter thinking**: for models that think (Gemini, GPT-5, Qwen3, …) the extension asks for the least reasoning the server accepts and remembers what worked; other models get `temperature: 0`.
+- 🏁 **Recommended models** marked ★ in Settings with one-click buttons, plus the measured speed table above.
 
 ## 🤝 Contributing
 
@@ -388,6 +445,6 @@ Edit only `src/`, run `python3 build.py`, then run the tests above. Full rules a
 
 <img src="assets/logo.svg" alt="Wraith Translate" width="44" height="44">
 
-<sub>**Wraith Translate** · v1.3.8 · Translate quietly, like a ghost 👻</sub>
+<sub>**Wraith Translate** · v1.4.0 · Translate quietly, like a ghost 👻</sub>
 
 </div>

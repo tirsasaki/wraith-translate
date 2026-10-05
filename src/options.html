@@ -77,6 +77,7 @@
           <button type="button" class="ghost" id="r-load">Connect</button>
         </div>
         <p class="status" id="r-status" role="status"></p>
+        <div class="rec" id="r-rec"></div>
       </div>
     </div>
 
@@ -106,6 +107,7 @@
           <button type="button" class="ghost" id="u-load">Connect</button>
         </div>
         <p class="status" id="u-status" role="status"></p>
+        <div class="rec" id="u-rec"></div>
       </div>
     </div>
 
@@ -125,6 +127,7 @@
           <button type="button" class="ghost" id="c-load">Load models</button>
         </div>
         <p class="status" id="c-status" role="status"></p>
+        <div class="rec" id="c-rec"></div>
       </div>
     </div>
 
@@ -156,7 +159,7 @@
   <!-- ================= DOCS ================= -->
   <section id="panel-docs" class="doc panel" role="tabpanel" aria-labelledby="tab-docs" hidden>
     <nav aria-label="Documentation contents">
-      <a href="#d-intro">Overview</a><a href="#d-use">Usage</a><a href="#d-page">Full page</a><a href="#d-features">Features</a><a href="#d-9router">9router</a><a href="#d-custom">Custom</a>
+      <a href="#d-intro">Overview</a><a href="#d-use">Usage</a><a href="#d-page">Full page</a><a href="#d-features">Features</a><a href="#d-9router">9router</a><a href="#d-models">Models</a><a href="#d-custom">Custom</a>
       <a href="#d-claude">Claude</a><a href="#d-deepl">DeepL</a><a href="#d-compare">Compare</a><a href="#d-lang">Languages</a>
       <a href="#d-perm">Permissions</a><a href="#d-privacy">Privacy</a><a href="#d-trouble">Troubleshooting</a>
       <a href="#d-install">Install</a><a href="#d-files">Files</a>
@@ -243,6 +246,20 @@
     </ol>
     <p>DeepL is a dedicated translation engine rather than a language model, so there is no model choice. The detected source language is shown in the tooltip. When the quota runs out, the tooltip shows a quota message (error 456).</p>
 
+    <h2 id="d-models">Recommended models</h2>
+    <p>Translation needs no reasoning, so the best models are small and fast. Settings marks them with ★ and shows them as buttons under the model list. Measured through 9router on one machine with a one-sentence prompt (two runs each; seconds until the first word / until finished). Your numbers will differ, but the ranking is what matters.</p>
+    <div class="scroll"><table>
+      <tr><th>Model (via 9router)</th><th>Run 1</th><th>Run 2</th><th>Verdict</th></tr>
+      <tr><td><code>gemini/gemini-3.5-flash-lite</code></td><td>0.87 / 1.21</td><td>0.83 / 1.14</td><td>Fastest and steady. Recommended.</td></tr>
+      <tr><td><code>kr/claude-haiku-4.5</code></td><td>3.03 / 3.04</td><td>1.47 / 1.47</td><td>Good alternative</td></tr>
+      <tr><td><code>gemini/gemini-3.1-flash-lite-preview</code></td><td>3.63 / 3.89</td><td>2.02 / 2.37</td><td>OK</td></tr>
+      <tr><td><code>kr/deepseek-3.2</code></td><td>2.22 / 2.22</td><td>8.43 / 8.43</td><td>Uneven</td></tr>
+      <tr><td><code>ag/gemini-3.8-flash-low</code></td><td>2.66 / 3.39</td><td>6.17 / 7.20</td><td>Uneven</td></tr>
+      <tr><td><code>ag/gemini-3-flash</code></td><td>8.94 / 9.54</td><td>12.47 / 12.75</td><td>Slow: avoid</td></tr>
+      <tr><td><code>gemini/gemma-4-31b-it</code></td><td>22.44 / 24.18</td><td>27.95 / 59.49</td><td>Very slow: avoid</td></tr>
+    </table></div>
+    <p>Asking for less thinking (<code>reasoning_effort</code>) did not help on <code>ag/gemini-3-flash</code>: 9router reports that setting as unsupported for those models, and first-word time stayed between 4.6 and 11.8 s. The choice of model is what counts. If a model was discontinued, some gateways still answer with a normal-looking message ("… is no longer available") instead of an error, so an unbelievably fast result is a reason to read the output. The README has the test script so you can repeat the test with your own models.</p>
+
     <h2 id="d-compare">Choosing a provider</h2>
     <div class="scroll"><table>
       <tr><th></th><th>9router</th><th>Custom</th><th>Claude</th><th>DeepL</th></tr>
@@ -315,6 +332,7 @@ popup.html/css/js    toolbar popup: translate page, language, toggles, settings 
 content.js           selection button, tooltip, and full-page translator (Shadow DOM bar)
 options.html/css/js  this settings and docs page
 lib/providers.js     9router, Custom, Claude, DeepL calls (single and batch)
+lib/recommended.js   recommended models shown in Settings
 lib/presets.js       OpenAI-compatible service presets
 lib/languages.js     language list and DeepL codes
 lib/defaults.js      defaults and settings reader
