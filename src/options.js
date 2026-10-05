@@ -2,6 +2,7 @@ import { LANGUAGES } from "./lib/languages.js";
 import { PRESETS } from "./lib/presets.js";
 import { PROVIDERS, listModels, translate, ApiError } from "./lib/providers.js";
 import { getSettings } from "./lib/defaults.js";
+import { recFor, findModel, TIP } from "./lib/recommended.js";
 
 const $ = (id) => document.getElementById(id);
 let state;
@@ -39,7 +40,51 @@ function showPane(provider) {
   document.querySelectorAll(".pane").forEach((p) => (p.hidden = p.dataset.pane !== provider));
 }
 
-function fillModels(select, models, selected) {
+/* ---------- Recommended models ---------- */
+const REC_UI = {
+  "9router": { box: "r-rec", model: "r-model" },
+  custom: { box: "u-rec", model: "u-model" },
+  claude: { box: "c-rec", model: "c-model" }
+};
+const lastModels = {}; // provider -> models from the last successful load
+const presetOf = (provider) => (provider === "custom" ? $("u-preset").value : "");
+const isRecommended = (provider) => (m) => recFor(provider, presetOf(provider)).some((it) => findModel(it, [m]));
+
+function renderRec(provider) {
+  const ui = REC_UI[provider];
+  const box = $(ui.box);
+  box.textContent = "";
+  const items = recFor(provider, presetOf(provider));
+  const models = lastModels[provider] || [];
+  if (items.length) {
+    const lead = document.createElement("p");
+    lead.className = "lead";
+    lead.textContent = "★ Recommended for speed";
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    for (const it of items) {
+      const m = findModel(it, models);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.disabled = !m;
+      b.title = m ? "Use this model" : "Not in your model list yet. Connect to refresh it.";
+      b.append(it.label || it.id);
+      const note = document.createElement("small");
+      note.textContent = it.note;
+      b.append(note);
+      b.onclick = () => { if (m) $(ui.model).value = m.id; };
+      chips.append(b);
+    }
+    box.append(lead, chips);
+  }
+  const tip = document.createElement("p");
+  tip.className = "tip";
+  tip.textContent = TIP;
+  box.append(tip);
+}
+
+function fillModels(select, models, selected, isRec = () => false) {
   select.textContent = "";
   if (!models.length) {
     select.append(new Option("No models found", ""));
@@ -53,7 +98,7 @@ function fillModels(select, models, selected) {
   }
   for (const [g, items] of groups) {
     const parent = g ? Object.assign(document.createElement("optgroup"), { label: g }) : select;
-    for (const m of items) parent.append(new Option(m.label, m.id));
+    for (const m of items) parent.append(new Option((isRec(m) ? "★ " : "") + m.label, m.id));
     if (g) select.append(parent);
   }
   const ids = models.map((m) => m.id);
@@ -121,7 +166,9 @@ async function loadOpenAI(provider, gesture) {
     const cfg = readForm().providers[provider];
     if (gesture) await ensureOrigin(cfg.baseUrl);
     const models = await listModels(provider, cfg);
-    fillModels($(ui.model), models, state.providers[provider].model);
+    lastModels[provider] = models;
+    fillModels($(ui.model), models, state.providers[provider].model, isRecommended(provider));
+    renderRec(provider);
     setStatus(
       st,
       models.length ? `${models.length} model${models.length === 1 ? "" : "s"} available in ${label}.` : `Connected, but ${label} returned no models.`,
@@ -141,7 +188,9 @@ async function loadClaude() {
   setStatus(st, "Loading models…");
   try {
     const models = await listModels("claude", readForm().providers.claude);
-    fillModels($("c-model"), models, state.providers.claude.model);
+    lastModels.claude = models;
+    fillModels($("c-model"), models, state.providers.claude.model, isRecommended("claude"));
+    renderRec("claude");
     setStatus(st, `${models.length} model${models.length === 1 ? "" : "s"} available.`, "ok");
   } catch (e) {
     setStatus(st, e instanceof ApiError ? e.message : "Failed to load models.", "err");
@@ -261,6 +310,7 @@ async function init() {
   seed("u-model", state.providers.custom.model);
   seed("c-model", state.providers.claude.model);
 
+  for (const p of Object.keys(REC_UI)) renderRec(p);
   document.querySelectorAll("input[name=provider]").forEach((r) => r.addEventListener("change", () => showPane(r.value)));
   document.querySelectorAll("[data-toggle]").forEach((b) =>
     b.addEventListener("click", () => {
@@ -276,6 +326,8 @@ async function init() {
     if (p && p.baseUrl) $("u-base").value = p.baseUrl;
     $("u-model").textContent = "";
     $("u-model").append(new Option("Connect to load models", ""));
+    lastModels.custom = [];
+    renderRec("custom");
     setStatus($("u-status"), "");
   });
   $("u-base").addEventListener("input", () => {

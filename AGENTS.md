@@ -20,6 +20,7 @@ Browser extension (Manifest V3) that translates **selected text** and **whole pa
 | `options.html/css/js` | Settings tab (features, provider, language) and Docs tab. Opens in a tab. Shows the installed version (badge next to the title, read from `chrome.runtime.getManifest()`) |
 | `lib/providers.js` | All API calls. `translate()` (single), `translateBatch()` (page), `listModels()`; `complete()` is the shared LLM call |
 | `lib/defaults.js` | `DEFAULTS`, `getSettings()` (deep-merges saved settings over defaults), `isConfigured()` |
+| `lib/recommended.js` | Model recommendations for the Settings page (★ marks, one-click buttons, tip). Mirrors the README speed table: update both together |
 | `lib/languages.js` | Target languages + DeepL codes |
 | `lib/presets.js` | OpenAI-compatible service presets (base URLs) |
 
@@ -43,6 +44,7 @@ Adding a setting: (1) default in `lib/defaults.js` **and** merge it in `getSetti
 | From → To | `type` | Notes |
 |---|---|---|
 | content → bg | `translate` `{text, targetLang?}` | Selection tooltip. Reply `{ok, text, langName, langCode, provider, detected?}` or `{ok:false, error}` |
+| content ⇄ bg | port `translateStream`, first message `{type:"translate", text, targetLang?}` | Selection tooltip (streaming). bg replies with `{type:"delta", text}` chunks, then `{type:"done", text, langName, langCode, provider, detected?}` or `{type:"error", error}`. Closing the port aborts the request. The plain `translate` message still works (options page uses `translate()` directly) |
 | content → bg | `translateBatch` `{texts[], targetLang?}` | Page translation. Reply `{ok, texts[]}` same length/order |
 | content → bg | `languages`, `openOptions` | |
 | popup → bg | `pageStatus` `{tabId}` → `{active, reachable}` | Injects `content.js` if the tab has none |
@@ -57,14 +59,20 @@ Entry points that call `togglePage`: popup button, `Alt+W` command, context-menu
 - `scan(root)` walks text nodes with a `TreeWalker`, skipping `SKIP_TAGS`, `translate="no"`, `.notranslate`, contenteditable, hidden elements, our own output (`data-wraithspeak-tr`), and text with no letters.
 - **Unit** = one text node (`replace` mode, keeps the layout) or one block-level ancestor (`bilingual` mode, translation appended as a `<span data-wraithspeak-tr>` inside the block).
 - `lazy: true` → `IntersectionObserver` (700px margin) queues a unit only when near the viewport; a debounced scroll listener re-scans for new content. `lazy: false` → everything queued at once.
-- `pump()` keeps up to `PARALLEL` (3) requests in flight; `takeBatch()` builds batches of ≤30 unique strings / ≤2500 chars and resolves cache hits locally.
+- `pump()` keeps up to `PARALLEL` (5) requests in flight; `takeBatch()` builds batches of ≤12 unique strings / ≤1000 chars and resolves cache hits locally. `onIntersect` sorts entries so on-screen text is queued first.
 - On error: `page.error` is set, pumping stops, the bar shows Retry (re-queues `page.failed`) and Settings.
 - `stopPage()` restores every `nodeValue`, removes inserted spans, disconnects observers.
 
 ## Batch translation protocol (lib/providers.js)
 - DeepL: native array in, array out.
-- LLM providers: system prompt asks for a JSON array of the same length; `parseArray()` tolerates code fences. If the reply is malformed, `llmBatch()` **halves the batch recursively** down to single strings (single strings use the plain prompt, no JSON).
+- LLM providers: system prompt asks for a JSON array of the same length; `parseArray()` tolerates code fences. If the reply is malformed, `llmBatch()` **halves the batch recursively (both halves in parallel)** down to single strings (single strings use the plain prompt, no JSON).
 - `MAX_BATCH_CHARS` guards the background; selection translation is capped by `MAX_CHARS` (5000).
+
+## Speed knobs (lib/providers.js)
+- `variantsFor()` returns a ladder of extra request-body fields per model: thinking-capable models (Gemini, GPT-5, Qwen3, …) try `reasoning_effort` `none` → `minimal` → `low` → nothing; others try `temperature: 0` → nothing. `withVariants()` moves down the ladder on 400/422/5xx and remembers the working step per `provider|url|model` (in memory + `chrome.storage.session`).
+- `request()` has a 90 s timeout, honors an `AbortSignal`, and retries 429/5xx twice with backoff (`Retry-After` respected). Non-final ladder steps retry only 429, so a rejected parameter fails fast.
+- `complete(..., {onDelta, signal})` streams (SSE) for OpenAI-compatible and Claude; if the server answers with plain JSON it falls back transparently. `<think>…</think>` blocks are stripped.
+- `translateStream()` is the streaming twin of `translate()`; DeepL is not streamed.
 
 ## Common tasks
 - **Add a provider:** entry in `PROVIDERS`, a branch in `complete()` (LLM) or a dedicated function like `deeplTranslate()`, `host_permissions` in `src/manifest.json`, radio + pane in `options.html`, wiring in `options.js` (`readForm`, `missingField`, `init`), `isConfigured()` in `lib/defaults.js`, docs.
@@ -87,7 +95,7 @@ Both start a local mock OpenAI server, load `dist/chromium` in headless Chromium
 
 ## Gotchas
 - `content.js` is a classic script (no `import`); it can't share code with `lib/`.
-- The service worker can be killed at any time: keep no state in `background.js` globals.
+- The service worker can be killed at any time: keep no state in `background.js` globals (the selection-result cache there is a best-effort speed-up only).
 - The content script is injected into **all frames**; sub-frames translate silently (no bar).
 - `chrome.permissions.request` must run from a user gesture (button click handlers in `options.js`).
 - Replace mode translates text node by node, so sentences split by inline tags (`<b>`, `<a>`) are translated in pieces. Bilingual mode translates whole blocks and reads better.

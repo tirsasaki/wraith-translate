@@ -1,4 +1,4 @@
-import { translate, translateBatch, ApiError } from "./lib/providers.js";
+import { translate, translateBatch, translateStream, ApiError } from "./lib/providers.js";
 import { getSettings } from "./lib/defaults.js";
 import { LANGUAGES } from "./lib/languages.js";
 
@@ -39,6 +39,36 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg?.type === "openOptions") {
     chrome.runtime.openOptionsPage();
   }
+});
+
+/* ---------- Streaming selection translation (long-lived port) ---------- */
+
+// Best-effort cache: the service worker may be killed at any time, so this is only a speed-up.
+const selCache = new Map();
+const SEL_CACHE_MAX = 40;
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== "translateStream") return;
+  const ctrl = new AbortController();
+  let gone = false;
+  port.onDisconnect.addListener(() => { gone = true; ctrl.abort(); });
+  const send = (m) => { if (gone) return; try { port.postMessage(m); } catch { gone = true; } };
+  port.onMessage.addListener(async (msg) => {
+    if (msg?.type !== "translate") return;
+    try {
+      const settings = await getSettings();
+      const s = { ...settings, targetLang: pickLang(settings, msg.targetLang) };
+      const key = [s.provider, s.providers?.[s.provider]?.model || "", s.targetLang, msg.text].join("\u0001");
+      const hit = selCache.get(key);
+      if (hit) return send({ type: "done", ...hit });
+      const res = await translateStream(s, msg.text, (text) => send({ type: "delta", text }), ctrl.signal);
+      selCache.set(key, res);
+      if (selCache.size > SEL_CACHE_MAX) selCache.delete(selCache.keys().next().value);
+      send({ type: "done", ...res });
+    } catch (e) {
+      send({ type: "error", error: errText(e) });
+    }
+  });
 });
 
 /* ---------- Full-page translation triggers ---------- */

@@ -115,7 +115,11 @@
 
   const attach = () => { if (!host.isConnected) document.documentElement.appendChild(host); };
 
+  let port = null;
+  const closePort = () => { try { port?.disconnect(); } catch {} port = null; };
+
   function hideAll() {
+    closePort();
     btn.classList.remove("show");
     tip.classList.remove("show");
     token++;
@@ -240,14 +244,14 @@
     tip.style.top = top + "px";
   }
 
-  function render(kind, text, metaText) {
+  function render(kind, text, metaText, partial = false) {
     body.className = "body " + kind;
     body.textContent = text;
     meta.textContent = metaText;
     const isErr = kind === "err";
     settingsBtn.hidden = !isErr;
-    copyBtn.hidden = kind !== "";
-    if (kind === "") lastResult = text;
+    copyBtn.hidden = kind !== "" || partial;
+    if (kind === "" && !partial) lastResult = text;
     showTip();
   }
 
@@ -276,23 +280,37 @@
   /* ---- Translate (optionally into a language other than the saved one) ---- */
   function run(targetLang) {
     const my = ++token;
+    closePort();
     render("load", "Translating…", "Wraith Translate");
     const fail = (m) => render("err", m, "Wraith Translate");
-    try {
-      chrome.runtime.sendMessage({ type: "translate", text: currentText, targetLang }, (res) => {
-        if (my !== token) return;
-        if (chrome.runtime.lastError || !res) return fail("Extension was updated. Reload this page and try again.");
-        if (!res.ok) return fail(res.error);
+    const gone = "Extension was updated. Reload this page and try again.";
+    let p;
+    try { p = chrome.runtime.connect({ name: "translateStream" }); } catch { return fail(gone); }
+    port = p;
+    let acc = "";
+    p.onMessage.addListener((m) => {
+      if (my !== token) return;
+      if (m.type === "delta") {
+        acc += m.text;
+        render("", acc, "Wraith Translate", true); // text appears as the model writes it
+      } else if (m.type === "done") {
+        closePort();
         loadLanguages(() => {
           if (my !== token) return;
-          fillLanguages(res.langCode);
-          const src = res.detected ? `${res.detected} → ` : "";
-          render("", res.text, `${LABELS[res.provider] || res.provider} · ${src}${res.langName}`);
+          fillLanguages(m.langCode);
+          const src = m.detected ? `${m.detected} → ` : "";
+          render("", m.text, `${LABELS[m.provider] || m.provider} · ${src}${m.langName}`);
         });
-      });
-    } catch {
-      fail("Extension was updated. Reload this page and try again.");
-    }
+      } else if (m.type === "error") {
+        closePort();
+        fail(m.error);
+      }
+    });
+    p.onDisconnect.addListener(() => {
+      void chrome.runtime.lastError;
+      if (my === token && port === p) { port = null; fail(gone); }
+    });
+    p.postMessage({ type: "translate", text: currentText, targetLang });
   }
 
   btn.addEventListener("click", () => {
@@ -313,7 +331,8 @@
   const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "INPUT", "SELECT", "OPTION", "SVG", "CANVAS",
     "CODE", "PRE", "KBD", "SAMP", "TEMPLATE", "IFRAME", "OBJECT", "MATH"]);
   const MARK = "data-wraithspeak-tr";
-  const BATCH_ITEMS = 30, BATCH_CHARS = 2500, PARALLEL = 3;
+  // Small batches finish sooner (output length is what costs time), and several run side by side.
+  const BATCH_ITEMS = 12, BATCH_CHARS = 1000, PARALLEL = 5;
   let page = null; // null = idle; otherwise the live session
 
   function setBar(kind, text, opts = {}) {
@@ -415,6 +434,10 @@
   function onIntersect(entries) {
     if (!page) return;
     let any = false;
+    // Whatever is on screen (or closest to it) goes to the front of the queue.
+    const vh = window.innerHeight;
+    const dist = (en) => { const t = en.boundingClientRect.top; return t < 0 ? -t : t > vh ? t - vh : 0; };
+    entries = entries.slice().sort((a, b) => dist(a) - dist(b));
     for (const en of entries) {
       if (!en.isIntersecting) continue;
       page.io.unobserve(en.target);
