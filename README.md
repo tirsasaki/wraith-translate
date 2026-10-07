@@ -14,8 +14,8 @@ No account. No backend. No tracking. Just your text and the provider you trust.
 <br>
 
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-A78BFA?style=for-the-badge&labelColor=1B1A2E)](src/manifest.json)
-[![Zero dependencies](https://img.shields.io/badge/runtime_deps-0-5DE0FF?style=for-the-badge&labelColor=1B1A2E)](#-build)
-[![Languages](https://img.shields.io/badge/target_languages-16-A78BFA?style=for-the-badge&labelColor=1B1A2E)](#-features)
+[![Zero dependencies](https://img.shields.io/badge/runtime_deps-0-5DE0FF?style=for-the-badge&labelColor=1B1A2E)](#build)
+[![Languages](https://img.shields.io/badge/target_languages-16-A78BFA?style=for-the-badge&labelColor=1B1A2E)](#features)
 
 <sub>**Works with**</sub><br>
 ![9router](https://img.shields.io/badge/9router-5DE0FF?style=flat-square&labelColor=1B1A2E)
@@ -24,22 +24,29 @@ No account. No backend. No tracking. Just your text and the provider you trust.
 ![DeepL](https://img.shields.io/badge/DeepL-A78BFA?style=flat-square&labelColor=1B1A2E)
 ![Ollama](https://img.shields.io/badge/Ollama-5DE0FF?style=flat-square&labelColor=1B1A2E)
 
+<a href="https://addons.mozilla.org/en-US/firefox/addon/wraith-translate/"><img src="https://img.shields.io/badge/Firefox-Get_the_add--on-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white&labelColor=1B1A2E" alt="Get the add-on for Firefox"></a>
+<a href="#installation"><img src="https://img.shields.io/badge/Edge-in_review-0078D7?style=for-the-badge&logo=microsoftedge&logoColor=white&labelColor=1B1A2E" alt="Edge add-on is in review"></a>
+<a href="#installation"><img src="https://img.shields.io/badge/Chrome-manual_install-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white&labelColor=1B1A2E" alt="Install manually on Chrome"></a>
+
 <sub>**Runs on** &nbsp;Chrome · Edge · Brave · Opera · Vivaldi · Arc · Firefox 140+</sub>
 
 <br>
 
-[**Features**](#-features) &nbsp;•&nbsp;
-[**Install**](#-installation) &nbsp;•&nbsp;
-[**Providers**](#-provider-setup) &nbsp;•&nbsp;
-[**Usage**](#-usage) &nbsp;•&nbsp;
-[**Privacy**](#-permissions-and-privacy) &nbsp;•&nbsp;
-[**Develop**](#-build)
+[**Features**](#features) &nbsp;•&nbsp;
+[**Install**](#installation) &nbsp;•&nbsp;
+[**Providers**](#provider-setup) &nbsp;•&nbsp;
+[**Usage**](#usage) &nbsp;•&nbsp;
+[**Privacy**](#permissions-and-privacy) &nbsp;•&nbsp;
+[**Troubleshooting**](#troubleshooting) &nbsp;•&nbsp;
+[**Develop**](#build)
 
 </div>
 
 <br>
 
 ---
+
+<a id="features"></a>
 
 ## ✨ Features
 
@@ -108,16 +115,19 @@ Code (`<pre>`, `<code>`), form fields, `translate="no"` / `class="notranslate"` 
 
 | Browser | Package | Status |
 |---|---|---|
-| Chrome, Edge, Brave, Opera, Vivaldi, Arc | `wraith-translate-chromium-v*.zip` | ✅ Tested on Chromium |
-| Firefox 140+ | `wraith-translate-firefox-v*.zip` | ✅ Passes `web-ext lint`; tested manually (temporary add-on) |
+| Chrome, Brave, Opera, Vivaldi, Arc | `wraith-translate-chromium-v*.zip` | ✅ Tested on Chromium; manual install (Load unpacked) |
+| Edge | `wraith-translate-chromium-v*.zip` | ⏳ Edge Add-ons listing is in review; manual install for now |
+| Firefox 140+ | [Firefox Add-ons (official)](https://addons.mozilla.org/en-US/firefox/addon/wraith-translate/) or `wraith-translate-firefox-v*.zip` | ✅ Listed on addons.mozilla.org; passes `web-ext lint` |
 | Safari (macOS/iOS) | not built | ⚠️ Needs Xcode: `xcrun safari-web-extension-converter dist/chromium` |
+
+<a id="installation"></a>
 
 ## 📦 Installation
 
 <details open>
 <summary><b>Chrome, Edge, Brave, Opera, Vivaldi, Arc</b></summary>
 
-1. Extract `wraith-translate-chromium-v*.zip` into a folder (or run the [build](#-build) and use `dist/chromium`).
+1. Extract `wraith-translate-chromium-v*.zip` into a folder (or run the [build](#build) and use `dist/chromium`).
 2. Open the extensions page: `chrome://extensions` (`edge://extensions`, `brave://extensions`, `opera://extensions`, `vivaldi://extensions`).
 3. Turn on **Developer mode**, click **Load unpacked**, and choose the extracted folder.
 4. The settings page opens automatically. Pick a provider, enter its details, click **Save settings**, then **Test translation**.
@@ -127,14 +137,24 @@ Code (`<pre>`, `<code>`), form fields, `translate="no"` / `class="notranslate"` 
 
 </details>
 
-<details>
+<details open>
 <summary><b>Firefox (140 or newer)</b></summary>
 
-1. Open `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on** → choose `manifest.json` from `dist/firefox` (or the zip). Temporary add-ons are removed when Firefox closes.
-2. For a permanent install, sign the package at [addons.mozilla.org](https://addons.mozilla.org) (the *unlisted* channel is enough), or use Firefox Developer Edition / Nightly with `xpinstall.signatures.required` set to `false`.
-3. Open the settings page and click **Allow access** on the banner so the selection button works on all sites. (Page translation from the popup works without this permission.)
+1. Open the official add-on page: **[Wraith Translate on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/wraith-translate/)**.
+2. Click **Add to Firefox** and confirm the permissions prompt. Updates arrive automatically.
+3. Open the settings page, pick a provider, enter its details, click **Save settings**, then **Test translation**.
+4. Click **Allow access** on the banner in Settings so the selection button works on all sites. (Page translation from the popup works without this permission.)
+
+<details>
+<summary>Install from source instead (for development)</summary>
+
+Open `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on** → choose `manifest.json` from `dist/firefox` (or the zip). Temporary add-ons are removed when Firefox closes.
 
 </details>
+
+</details>
+
+<a id="provider-setup"></a>
 
 ## 🔑 Provider setup
 
@@ -197,55 +217,17 @@ Paste your authentication key. Keys ending in `:fx` automatically use `api-free.
 | **Cost** | Follows the backing provider | Follows the service | Pay per token | Free tier with limits, or Pro |
 
 > [!TIP]
-> Language models write the result token by token, so they are slower than DeepL. Choose a small, fast model (*flash*, *mini*, *haiku* variants) and avoid *reasoning* models for translation. Measured results are in [Choosing a model](#-choosing-a-model).
+> Language models write the result token by token, so they are slower than DeepL. Choose a small, fast model (*flash*, *mini*, *haiku* variants) and avoid *reasoning* models for translation. Measured results are in [Choosing a model](#choosing-a-model).
+
+<a id="choosing-a-model"></a>
 
 ### 🏁 Choosing a model
 
-Translation needs no reasoning, so the best models are **small and fast**. In **Settings**, recommended models are marked with **★** and offered as one-click buttons under the model list (the recommendations live in `src/lib/recommended.js`).
+Translation needs no reasoning, so the best models are **small and fast** (*flash*, *lite*, *mini*, *haiku*). In **Settings**, recommended models are marked with **★** and offered as one-click buttons under the model list (the list lives in `src/lib/recommended.js`).
 
-Here is a speed test, so you do not have to repeat it. Setup: models reached through [9router](https://github.com/decolua/9router) on a local PC, one prompt (`Translate to Indonesian: CachyOS Dethroned SteamOS on Steam — Desktop Linux Gaming Has a New Center of Gravity`), streaming on, two runs each, on 2026-10-04. Times are seconds until the **first word / until finished**, measured with `curl`.
+In our speed test, `gemini/gemini-3.5-flash-lite` was fastest and steadiest (about 1 s to finish), `kr/claude-haiku-4.5` was a good alternative, and reasoning-heavy or large models took 10 s or more. The model decides the speed, not the extension. Full results, caveats, and a script to repeat the test: **[docs/model-speed.md](docs/model-speed.md)**.
 
-| Model | Run 1 | Run 2 | Verdict |
-|---|---|---|---|
-| `gemini/gemini-3.5-flash-lite` | 0.87 / 1.21 | 0.83 / 1.14 | 🥇 **Fastest and steady. Recommended.** |
-| `kr/claude-haiku-4.5` | 3.03 / 3.04 | 1.47 / 1.47 | 👍 Good alternative |
-| `gemini/gemini-3.1-flash-lite-preview` | 3.63 / 3.89 | 2.02 / 2.37 | 👌 OK |
-| `kr/deepseek-3.2` | 2.22 / 2.22 | 8.43 / 8.43 | ⚠️ Uneven |
-| `ag/gemini-3.8-flash-low` | 2.66 / 3.39 | 6.17 / 7.20 | ⚠️ Uneven |
-| `ag/gemini-3-flash` | 8.94 / 9.54 | 12.47 / 12.75 | 🐌 Slow: avoid |
-| `gemini/gemma-4-31b-it` | 22.44 / 24.18 | 27.95 / 59.49 | 🐌 Very slow: avoid |
-| `ag/gemini-3.5-flash-extra-low` | n/a | n/a | ❌ Discontinued (see below) |
-| `cx/gpt-5.4-mini` | n/a | n/a | ❔ HTTP 400 on this request, not measured |
-
-**What the test showed**
-
-- **The model decides the speed, not the extension.** Once the first word arrives, a short translation finishes in about half a second. The wait is before the first word, and it differs a lot between models and routes.
-- **Asking for less thinking did not help here.** On `ag/gemini-3-flash`, `reasoning_effort` values `none`, `minimal`, `low`, and the default all stayed between 4.6 and 12.5 s until the first word, because 9router reports that setting as unsupported for those models. The extension still sends the lightest setting each model accepts (and remembers it), but picking a fast model is what works.
-- **A discontinued model can look like success.** `ag/gemini-3.5-flash-extra-low` answered in 0.09 s with HTTP 200, but the "translation" was the message *"Gemini 3.5 Flash is no longer available…"*. If a result looks too fast to be true, read the output.
-- A "lite" model is the fastest but may sound less polished on long or nuanced text. If so, `kr/claude-haiku-4.5` (or a Claude Haiku through the Claude provider) is the next step up.
-
-> [!NOTE]
-> This is one prompt, two runs, one machine and network, through one gateway. Model names and availability change often, and results vary with load and location. Treat the ranking as a guide and repeat the test with your own models.
-
-<details>
-<summary><b>Run the speed test yourself</b></summary>
-
-```bash
-KEY="YOUR_9ROUTER_KEY"            # leave out the Authorization header if your gateway has no auth
-URL=http://localhost:20128/v1/chat/completions
-for M in gemini/gemini-3.5-flash-lite kr/claude-haiku-4.5 YOUR/OTHER-MODEL; do
-  echo "== $M"
-  for i in 1 2; do
-    curl -s -o /dev/null -w "status=%{http_code} first-word=%{time_starttransfer}s total=%{time_total}s\n" $URL \
-      -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' \
-      -d "{\"model\":\"$M\",\"stream\":true,\"max_tokens\":80,\"messages\":[{\"role\":\"user\",\"content\":\"Translate to Indonesian: CachyOS Dethroned SteamOS on Steam — Desktop Linux Gaming Has a New Center of Gravity\"}]}"
-  done
-done
-```
-
-`first-word` is what you feel as "waiting". `status` should be `200`; otherwise the model is not available to you. Add `"reasoning_effort":"low"` to the JSON to see whether your model reacts to it.
-
-</details>
+<a id="usage"></a>
 
 ## 🚀 Usage
 
@@ -274,9 +256,11 @@ Open the **Settings** tab (or *Open settings* in the popup):
 | Translate full page | Off disables the popup button, shortcut, and context menu, and restores any translated page |
 | Page display | *Replace text* or *Show both* (applies to the next page translation) |
 | Translate as you scroll | On: translate near-screen text only. Off: translate everything at once |
-| Provider, model, and target language | See [Provider setup](#-provider-setup). Recommended models are marked ★ and offered as one-click buttons, see [Choosing a model](#-choosing-a-model) |
+| Provider, model, and target language | See [Provider setup](#provider-setup). Recommended models are marked ★ and offered as one-click buttons, see [Choosing a model](#choosing-a-model) |
 
 Feature changes apply to open tabs immediately, without a reload. The **Docs** tab contains full documentation inside the extension.
+
+<a id="permissions-and-privacy"></a>
 
 ## 🔒 Permissions and privacy
 
@@ -297,99 +281,7 @@ Feature changes apply to open tabs immediately, without a reload. The **Docs** t
 > [!WARNING]
 > Do not translate confidential text through a provider you do not trust. Read the full [privacy policy](PRIVACY.md).
 
-## 🧩 Project structure
-
-```
-.
-├── src/                    extension code (the Chromium manifest is the source of truth)
-│   ├── manifest.json
-│   ├── background.js       service worker: translate, shortcut, menu, script injection
-│   ├── content.js          selection button, tooltip, page translator, bar (Shadow DOM)
-│   ├── popup.html/css/js   toolbar popup
-│   ├── options.html/css/js settings page + documentation
-│   ├── lib/
-│   │   ├── providers.js    API calls (single + batch)
-│   │   ├── defaults.js     defaults and settings reader
-│   │   ├── recommended.js  recommended models shown in Settings
-│   │   ├── languages.js    language list + DeepL codes
-│   │   └── presets.js      OpenAI-compatible service presets
-│   └── icons/              16, 48, 128 px
-├── assets/                 logo (SVG + PNG), social preview, store icon
-├── build.py                builds dist/chromium, dist/firefox, and zips
-├── tests/                  end-to-end tests (Playwright + Chromium)
-├── AGENTS.md               architecture guide for developers / AI assistants
-├── PRIVACY.md              privacy policy (link it in store listings)
-├── STORE_LISTING.md        ready-to-paste store listing text
-└── dist/                   build output (generated, do not edit)
-```
-
-### How it works
-
-```mermaid
-flowchart LR
-    A["content.js<br/>selection · tooltip · page bar"] -- "translateStream (port) / translateBatch" --> B["background.js<br/>service worker"]
-    P["popup.js"] -- "togglePage / pageStatus" --> B
-    B --> C["lib/providers.js"]
-    C --> D1["9router"]
-    C --> D2["OpenAI-compatible"]
-    C --> D3["Claude"]
-    C --> D4["DeepL"]
-```
-
-`content.js` talks to `background.js` (selected text over a streaming port, page batches as messages), which reads the settings and calls `lib/providers.js`. Message flow, the batch protocol, and how to add providers, languages, or settings are documented in [`AGENTS.md`](AGENTS.md).
-
-## 🛠️ Build
-
-No runtime dependencies or bundler. Requires Python 3:
-
-```bash
-python3 build.py
-```
-
-```
-dist/chromium/                              folder ready for Load unpacked
-dist/firefox/                               folder ready for Load Temporary Add-on
-dist/wraith-translate-chromium-v<ver>.zip
-dist/wraith-translate-firefox-v<ver>.zip
-```
-
-The Firefox manifest is derived automatically from `src/manifest.json` (background script + `browser_specific_settings.gecko`). Bump `version` in `src/manifest.json` for each release. Firefox lint: `npx web-ext lint -s dist/firefox`.
-
-## 🧪 Testing
-
-Automated tests use a local mock OpenAI server and headless Chromium:
-
-```bash
-pip install playwright
-python3 build.py
-python3 tests/e2e_page.py            # replace/bilingual/lazy/restore, code and notranslate skipped, feature toggles, error path
-python3 tests/e2e_popup_inject.py    # popup saves settings, togglePage, on-demand script injection
-```
-
-Test screenshots are saved to `tests/out/`.
-
-<details>
-<summary><b>Manual test scenarios</b></summary>
-
-1. 9router: Connect, the model list appears, pick one, save, *Test translation* succeeds.
-2. Select a sentence on a normal page: the button appears, click it, and the tooltip shows the full result with no inner scrollbar.
-3. Select text inside a `<textarea>`: the button still appears.
-4. Use the *Translate to* menu in the tooltip: the same text is re-translated into that language and the saved target language is unchanged. `Esc` or clicking elsewhere closes the tooltip.
-5. Use a wrong API key: the tooltip shows a 401/403 message and an *Open settings* button.
-6. Stop 9router, then translate: a "Cannot reach…" message appears.
-7. Select more than 5,000 characters: a "Text is too long" message appears.
-8. Switch to Custom (choose a preset, Connect), Claude, and DeepL; repeat step 2.
-9. On `chrome://extensions` the button does not appear (expected).
-10. Reload the extension without reloading the tab: an "Extension was updated" message appears.
-11. Turn off *Translate selected text*, Save, reload a tab: selecting text shows no button; the popup button still translates the page.
-12. Turn off *Translate full page*, Save: the context menu entry disappears and the popup button is disabled.
-13. Translate a long article with *Replace text*: visible text changes, code blocks stay untouched, scrolling translates the rest. *Show original page* restores everything.
-14. *Show both* mode: the translation appears under each paragraph; the bar's *Original* button hides/shows it.
-15. Wrong API key during page translation: the bar shows the error with Retry and Settings.
-16. Click the icon on a tab opened before installing/reloading the extension: the popup opens and translation still works.
-17. Click the icon on `chrome://extensions`: the popup says the page can't be translated; *Open settings* still works.
-
-</details>
+<a id="troubleshooting"></a>
 
 ## 🩺 Troubleshooting
 
@@ -409,7 +301,7 @@ Test screenshots are saved to `tests/out/`.
 | 456 (DeepL) | Monthly character quota used up. |
 | Empty model list | No AI connected in 9router, or the key cannot read the model list. |
 | Result includes extra commentary | Some small models ignore instructions. Choose a different model. |
-| Translation is slow | Usually the model, not the extension. Pick a model marked ★ in Settings, avoid reasoning models, or use DeepL. See [Choosing a model](#-choosing-a-model). |
+| Translation is slow | Usually the model, not the extension. Pick a model marked ★ in Settings, avoid reasoning models, or use DeepL. See [Choosing a model](#choosing-a-model). |
 | Page only partly translated | Code, form fields, and hidden elements are skipped on purpose. Turn off *Translate as you scroll* to translate everything at once, or press Retry after an error. |
 | "Extension was updated" | Reload the tab you are on. |
 
@@ -420,7 +312,47 @@ Test screenshots are saved to `tests/out/`.
 - *Replace text* mode translates piece by piece, so sentences split by inline tags (`<b>`, `<a>`) are translated separately. *Show both* translates whole blocks and reads more naturally.
 - Content loaded after translation starts (infinite scroll) is translated once scrolling settles; constantly changing dynamic content may trigger repeated translations.
 - Selected-text translations stream in as the model writes them. Full-page translation fills in per batch (a batch appears once its whole reply arrives).
-- Firefox was tested manually as a temporary add-on only (no automated Firefox tests); Safari is not built.
+- Firefox has no automated tests (it is linted and checked manually); Safari is not built.
+
+## 🧩 Architecture
+
+`content.js` (selection button, tooltip, page translator) talks to `background.js` (service worker), which reads the settings and calls `lib/providers.js` for 9router, OpenAI-compatible services, Claude, or DeepL. The file map, message flow, batch protocol, and how to add a provider, language, or setting are in [`AGENTS.md`](AGENTS.md).
+
+<a id="build"></a>
+
+## 🛠️ Build
+
+No runtime dependencies or bundler. Requires Python 3:
+
+```bash
+python3 build.py
+```
+
+```
+dist/chromium/                              folder ready for Load unpacked
+dist/firefox/                               folder ready for Load Temporary Add-on
+dist/wraith-translate-chromium-v<ver>.zip
+dist/wraith-translate-firefox-v<ver>.zip
+```
+
+The Firefox manifest is derived automatically from `src/manifest.json` (background script + `browser_specific_settings.gecko`). Bump `version` in `src/manifest.json` for each release. Firefox lint: `npx web-ext lint -s dist/firefox`.
+
+<a id="testing"></a>
+
+## 🧪 Testing
+
+Automated tests use a local mock OpenAI server and headless Chromium:
+
+```bash
+pip install playwright
+python3 build.py
+python3 tests/e2e_page.py            # replace/bilingual/lazy/restore, code and notranslate skipped, feature toggles, error path
+python3 tests/e2e_popup_inject.py    # popup saves settings, togglePage, on-demand script injection
+```
+
+Test screenshots are saved to `tests/out/`.
+
+Manual test scenarios (17 checks) are in [`tests/MANUAL.md`](tests/MANUAL.md).
 
 ## 🤝 Contributing
 
