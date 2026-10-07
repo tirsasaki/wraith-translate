@@ -14,8 +14,8 @@ Tanpa akun. Tanpa backend. Tanpa pelacakan. Hanya teks Anda dan provider yang An
 <br>
 
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-A78BFA?style=for-the-badge&labelColor=1B1A2E)](src/manifest.json)
-[![Tanpa dependensi](https://img.shields.io/badge/runtime_deps-0-5DE0FF?style=for-the-badge&labelColor=1B1A2E)](#-build)
-[![Bahasa](https://img.shields.io/badge/bahasa_tujuan-16-A78BFA?style=for-the-badge&labelColor=1B1A2E)](#-fitur)
+[![Tanpa dependensi](https://img.shields.io/badge/runtime_deps-0-5DE0FF?style=for-the-badge&labelColor=1B1A2E)](#build)
+[![Bahasa](https://img.shields.io/badge/bahasa_tujuan-16-A78BFA?style=for-the-badge&labelColor=1B1A2E)](#fitur)
 
 <sub>**Bekerja dengan**</sub><br>
 ![9router](https://img.shields.io/badge/9router-5DE0FF?style=flat-square&labelColor=1B1A2E)
@@ -24,22 +24,29 @@ Tanpa akun. Tanpa backend. Tanpa pelacakan. Hanya teks Anda dan provider yang An
 ![DeepL](https://img.shields.io/badge/DeepL-A78BFA?style=flat-square&labelColor=1B1A2E)
 ![Ollama](https://img.shields.io/badge/Ollama-5DE0FF?style=flat-square&labelColor=1B1A2E)
 
+<a href="https://addons.mozilla.org/en-US/firefox/addon/wraith-translate/"><img src="https://img.shields.io/badge/Firefox-Pasang_add--on-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white&labelColor=1B1A2E" alt="Pasang add-on untuk Firefox"></a>
+<a href="#instalasi"><img src="https://img.shields.io/badge/Edge-sedang_diverifikasi-0078D7?style=for-the-badge&logo=microsoftedge&logoColor=white&labelColor=1B1A2E" alt="Add-on Edge sedang diverifikasi"></a>
+<a href="#instalasi"><img src="https://img.shields.io/badge/Chrome-instal_manual-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white&labelColor=1B1A2E" alt="Instal manual di Chrome"></a>
+
 <sub>**Berjalan di** &nbsp;Chrome · Edge · Brave · Opera · Vivaldi · Arc · Firefox 140+</sub>
 
 <br>
 
-[**Fitur**](#-fitur) &nbsp;•&nbsp;
-[**Instalasi**](#-instalasi) &nbsp;•&nbsp;
-[**Provider**](#-konfigurasi-provider) &nbsp;•&nbsp;
-[**Cara pakai**](#-cara-pakai) &nbsp;•&nbsp;
-[**Privasi**](#-izin-dan-privasi) &nbsp;•&nbsp;
-[**Pengembangan**](#-build)
+[**Fitur**](#fitur) &nbsp;•&nbsp;
+[**Instalasi**](#instalasi) &nbsp;•&nbsp;
+[**Provider**](#konfigurasi-provider) &nbsp;•&nbsp;
+[**Cara pakai**](#cara-pakai) &nbsp;•&nbsp;
+[**Privasi**](#izin-dan-privasi) &nbsp;•&nbsp;
+[**Pemecahan masalah**](#pemecahan-masalah) &nbsp;•&nbsp;
+[**Pengembangan**](#build)
 
 </div>
 
 <br>
 
 ---
+
+<a id="fitur"></a>
 
 ## ✨ Fitur
 
@@ -108,16 +115,19 @@ Kode (`<pre>`, `<code>`), kolom input, elemen `translate="no"` / `class="notrans
 
 | Browser | Paket | Status |
 |---|---|---|
-| Chrome, Edge, Brave, Opera, Vivaldi, Arc | `wraith-translate-chromium-v*.zip` | ✅ Diuji di Chromium |
-| Firefox 140+ | `wraith-translate-firefox-v*.zip` | ✅ Lolos `web-ext lint`; diuji manual (add-on sementara) |
+| Chrome, Brave, Opera, Vivaldi, Arc | `wraith-translate-chromium-v*.zip` | ✅ Diuji di Chromium; instal manual (Load unpacked) |
+| Edge | `wraith-translate-chromium-v*.zip` | ⏳ Listing Edge Add-ons sedang diverifikasi; sementara instal manual |
+| Firefox 140+ | [Firefox Add-ons (resmi)](https://addons.mozilla.org/en-US/firefox/addon/wraith-translate/) atau `wraith-translate-firefox-v*.zip` | ✅ Tersedia di addons.mozilla.org; lolos `web-ext lint` |
 | Safari (macOS/iOS) | belum dibuat | ⚠️ Perlu Xcode: `xcrun safari-web-extension-converter dist/chromium` |
+
+<a id="instalasi"></a>
 
 ## 📦 Instalasi
 
 <details open>
 <summary><b>Chrome, Edge, Brave, Opera, Vivaldi, Arc</b></summary>
 
-1. Ekstrak `wraith-translate-chromium-v*.zip` ke sebuah folder (atau jalankan [build](#-build) lalu pakai `dist/chromium`).
+1. Ekstrak `wraith-translate-chromium-v*.zip` ke sebuah folder (atau jalankan [build](#build) lalu pakai `dist/chromium`).
 2. Buka halaman extension: `chrome://extensions` (`edge://extensions`, `brave://extensions`, `opera://extensions`, `vivaldi://extensions`).
 3. Aktifkan **Developer mode**, klik **Load unpacked**, lalu pilih folder hasil ekstrak.
 4. Halaman pengaturan terbuka otomatis. Pilih provider, isi detailnya, klik **Save settings**, lalu **Test translation**.
@@ -127,14 +137,24 @@ Kode (`<pre>`, `<code>`), kolom input, elemen `translate="no"` / `class="notrans
 
 </details>
 
-<details>
+<details open>
 <summary><b>Firefox (140 atau lebih baru)</b></summary>
 
-1. Buka `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on** → pilih `manifest.json` dari `dist/firefox` (atau zip-nya). Add-on sementara hilang saat Firefox ditutup.
-2. Untuk pemasangan permanen, tanda tangani paket di [addons.mozilla.org](https://addons.mozilla.org) (kanal *unlisted* sudah cukup), atau pakai Firefox Developer Edition / Nightly dengan `xpinstall.signatures.required` diatur ke `false`.
-3. Buka halaman pengaturan dan klik **Allow access** pada banner agar tombol seleksi bekerja di semua situs. (Terjemahan halaman dari popup tetap jalan tanpa izin ini.)
+1. Buka halaman add-on resmi: **[Wraith Translate di Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/wraith-translate/)**.
+2. Klik **Add to Firefox** (Tambahkan ke Firefox) lalu setujui permintaan izin. Update datang otomatis.
+3. Buka halaman pengaturan, pilih provider, isi detailnya, klik **Save settings**, lalu **Test translation**.
+4. Klik **Allow access** pada banner di Settings agar tombol seleksi bekerja di semua situs. (Terjemahan halaman dari popup tetap jalan tanpa izin ini.)
+
+<details>
+<summary>Pasang dari source (untuk pengembangan)</summary>
+
+Buka `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on** → pilih `manifest.json` dari `dist/firefox` (atau zip-nya). Add-on sementara hilang saat Firefox ditutup.
 
 </details>
+
+</details>
+
+<a id="konfigurasi-provider"></a>
 
 ## 🔑 Konfigurasi provider
 
@@ -197,55 +217,17 @@ Tempel authentication key. Key berakhiran `:fx` otomatis memakai `api-free.deepl
 | **Biaya** | Mengikuti provider di belakangnya | Mengikuti layanan | Bayar per token | Gratis dengan batas, atau Pro |
 
 > [!TIP]
-> Model bahasa menulis hasil token demi token, jadi lebih lambat dari DeepL. Pilih model kecil yang cepat (varian *flash*, *mini*, *haiku*) dan hindari model *reasoning* untuk terjemahan. Hasil pengukurannya ada di [Memilih model](#-memilih-model).
+> Model bahasa menulis hasil token demi token, jadi lebih lambat dari DeepL. Pilih model kecil yang cepat (varian *flash*, *mini*, *haiku*) dan hindari model *reasoning* untuk terjemahan. Hasil pengukurannya ada di [Memilih model](#memilih-model).
+
+<a id="memilih-model"></a>
 
 ### 🏁 Memilih model
 
-Terjemahan tidak butuh reasoning, jadi model terbaik adalah yang **kecil dan cepat**. Di **Settings**, model yang direkomendasikan diberi tanda **★** dan muncul sebagai tombol sekali klik di bawah daftar model (rekomendasinya ada di `src/lib/recommended.js`).
+Terjemahan tidak butuh reasoning, jadi model terbaik adalah yang **kecil dan cepat** (varian *flash*, *lite*, *mini*, *haiku*). Di **Settings**, model yang direkomendasikan diberi tanda **★** dan tersedia sebagai tombol sekali klik di bawah daftar model (daftarnya ada di `src/lib/recommended.js`).
 
-Berikut hasil uji kecepatan, supaya Anda tidak perlu mengulangnya. Kondisi: model diakses lewat [9router](https://github.com/decolua/9router) di PC lokal, satu prompt (`Translate to Indonesian: CachyOS Dethroned SteamOS on Steam — Desktop Linux Gaming Has a New Center of Gravity`), streaming aktif, masing-masing dua putaran, pada 2026-10-04. Waktu dalam detik sampai **kata pertama / sampai selesai**, diukur dengan `curl`.
+Pada uji kecepatan kami, `gemini/gemini-3.5-flash-lite` paling cepat dan stabil (sekitar 1 detik sampai selesai), `kr/claude-haiku-4.5` alternatif yang bagus, sedangkan model besar atau yang banyak "berpikir" butuh 10 detik atau lebih. Model yang menentukan kecepatan, bukan extension. Hasil lengkap, catatan, dan skrip untuk mengulang tes: **[docs/model-speed.id.md](docs/model-speed.id.md)**.
 
-| Model | Putaran 1 | Putaran 2 | Kesimpulan |
-|---|---|---|---|
-| `gemini/gemini-3.5-flash-lite` | 0,87 / 1,21 | 0,83 / 1,14 | 🥇 **Tercepat dan stabil. Direkomendasikan.** |
-| `kr/claude-haiku-4.5` | 3,03 / 3,04 | 1,47 / 1,47 | 👍 Alternatif bagus |
-| `gemini/gemini-3.1-flash-lite-preview` | 3,63 / 3,89 | 2,02 / 2,37 | 👌 Cukup |
-| `kr/deepseek-3.2` | 2,22 / 2,22 | 8,43 / 8,43 | ⚠️ Tidak stabil |
-| `ag/gemini-3.8-flash-low` | 2,66 / 3,39 | 6,17 / 7,20 | ⚠️ Tidak stabil |
-| `ag/gemini-3-flash` | 8,94 / 9,54 | 12,47 / 12,75 | 🐌 Lambat: hindari |
-| `gemini/gemma-4-31b-it` | 22,44 / 24,18 | 27,95 / 59,49 | 🐌 Sangat lambat: hindari |
-| `ag/gemini-3.5-flash-extra-low` | n/a | n/a | ❌ Sudah dihentikan (lihat di bawah) |
-| `cx/gpt-5.4-mini` | n/a | n/a | ❔ HTTP 400 pada request ini, tidak terukur |
-
-**Yang ditunjukkan hasil uji ini**
-
-- **Modellah yang menentukan kecepatan, bukan extension.** Setelah kata pertama muncul, terjemahan singkat selesai dalam sekitar setengah detik. Menunggunya terjadi sebelum kata pertama, dan sangat berbeda antar model dan rute.
-- **Meminta thinking lebih sedikit tidak membantu di sini.** Pada `ag/gemini-3-flash`, nilai `reasoning_effort` `none`, `minimal`, `low`, dan bawaan semuanya tetap 4,6–12,5 detik sampai kata pertama, karena 9router menyatakan pengaturan itu tidak didukung untuk model tersebut. Extension tetap mengirim pengaturan teringan yang diterima tiap model (dan mengingatnya), tetapi yang benar-benar berhasil adalah memilih model yang cepat.
-- **Model yang sudah dihentikan bisa tampak seperti berhasil.** `ag/gemini-3.5-flash-extra-low` menjawab dalam 0,09 detik dengan HTTP 200, tetapi "terjemahannya" ternyata pesan *"Gemini 3.5 Flash is no longer available…"*. Jika hasil terasa terlalu cepat, baca isinya.
-- Model "lite" paling cepat, tetapi bisa terdengar kurang halus pada teks panjang atau bernuansa. Jika begitu, `kr/claude-haiku-4.5` (atau Claude Haiku lewat provider Claude) adalah langkah berikutnya.
-
-> [!NOTE]
-> Ini satu prompt, dua putaran, satu mesin dan jaringan, lewat satu gateway. Nama dan ketersediaan model sering berubah, dan hasil bergantung pada beban dan lokasi. Anggap urutannya sebagai panduan, lalu ulangi uji dengan model Anda sendiri.
-
-<details>
-<summary><b>Jalankan uji kecepatan sendiri</b></summary>
-
-```bash
-KEY="ISI_KEY_9ROUTER"            # hapus header Authorization jika gateway Anda tanpa auth
-URL=http://localhost:20128/v1/chat/completions
-for M in gemini/gemini-3.5-flash-lite kr/claude-haiku-4.5 MODEL/LAIN-ANDA; do
-  echo "== $M"
-  for i in 1 2; do
-    curl -s -o /dev/null -w "status=%{http_code} kata-pertama=%{time_starttransfer}s total=%{time_total}s\n" $URL \
-      -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' \
-      -d "{\"model\":\"$M\",\"stream\":true,\"max_tokens\":80,\"messages\":[{\"role\":\"user\",\"content\":\"Translate to Indonesian: CachyOS Dethroned SteamOS on Steam — Desktop Linux Gaming Has a New Center of Gravity\"}]}"
-  done
-done
-```
-
-`kata-pertama` adalah yang Anda rasakan sebagai "menunggu". `status` harus `200`; jika bukan, modelnya tidak tersedia untuk Anda. Tambahkan `"reasoning_effort":"low"` ke JSON untuk melihat apakah model Anda bereaksi terhadapnya.
-
-</details>
+<a id="cara-pakai"></a>
 
 ## 🚀 Cara pakai
 
@@ -274,9 +256,11 @@ Buka tab **Settings** (atau *Open settings* di popup):
 | Translate full page | Mati = tombol popup, shortcut, dan menu klik kanan nonaktif, dan halaman yang sedang diterjemahkan dikembalikan |
 | Page display | *Replace text* atau *Show both* (berlaku pada terjemahan halaman berikutnya) |
 | Translate as you scroll | Hidup = terjemahkan teks dekat layar saja. Mati = terjemahkan semuanya sekaligus |
-| Provider, model, dan bahasa tujuan | Lihat [Konfigurasi provider](#-konfigurasi-provider). Model yang direkomendasikan diberi tanda ★ dan tersedia sebagai tombol sekali klik, lihat [Memilih model](#-memilih-model) |
+| Provider, model, dan bahasa tujuan | Lihat [Konfigurasi provider](#konfigurasi-provider). Model yang direkomendasikan diberi tanda ★ dan tersedia sebagai tombol sekali klik, lihat [Memilih model](#memilih-model) |
 
 Perubahan fitur langsung berlaku di tab yang sudah terbuka, tanpa reload. Tab **Docs** berisi dokumentasi lengkap di dalam extension.
+
+<a id="izin-dan-privasi"></a>
 
 ## 🔒 Izin dan privasi
 
@@ -297,99 +281,7 @@ Perubahan fitur langsung berlaku di tab yang sudah terbuka, tanpa reload. Tab **
 > [!WARNING]
 > Jangan menerjemahkan teks rahasia lewat provider yang tidak Anda percaya. Baca [kebijakan privasi](PRIVACY.md) selengkapnya.
 
-## 🧩 Struktur proyek
-
-```
-.
-├── src/                    kode extension (manifest Chromium adalah sumber utama)
-│   ├── manifest.json
-│   ├── background.js       service worker: terjemahan, shortcut, menu, injeksi script
-│   ├── content.js          tombol seleksi, tooltip, penerjemah halaman, bar (Shadow DOM)
-│   ├── popup.html/css/js   popup toolbar
-│   ├── options.html/css/js halaman pengaturan + dokumentasi
-│   ├── lib/
-│   │   ├── providers.js    panggilan API (single + batch)
-│   │   ├── defaults.js     default dan pembaca pengaturan
-│   │   ├── recommended.js  model yang direkomendasikan di Settings
-│   │   ├── languages.js    daftar bahasa + kode DeepL
-│   │   └── presets.js      preset layanan OpenAI-compatible
-│   └── icons/              16, 48, 128 px
-├── assets/                 logo (SVG + PNG), social preview, ikon toko
-├── build.py                membuat dist/chromium, dist/firefox, dan zip
-├── tests/                  tes end-to-end (Playwright + Chromium)
-├── AGENTS.md               panduan arsitektur untuk developer / asisten AI
-├── PRIVACY.md              kebijakan privasi (tautkan di listing toko)
-├── STORE_LISTING.md        teks listing toko siap tempel
-└── dist/                   hasil build (di-generate, jangan diedit)
-```
-
-### Cara kerjanya
-
-```mermaid
-flowchart LR
-    A["content.js<br/>seleksi · tooltip · bar halaman"] -- "translateStream (port) / translateBatch" --> B["background.js<br/>service worker"]
-    P["popup.js"] -- "togglePage / pageStatus" --> B
-    B --> C["lib/providers.js"]
-    C --> D1["9router"]
-    C --> D2["OpenAI-compatible"]
-    C --> D3["Claude"]
-    C --> D4["DeepL"]
-```
-
-`content.js` berkomunikasi dengan `background.js` (teks terseleksi lewat port streaming, batch halaman lewat pesan), yang membaca pengaturan lalu memanggil `lib/providers.js`. Alur pesan, protokol batch, dan cara menambah provider, bahasa, atau pengaturan didokumentasikan di [`AGENTS.md`](AGENTS.md).
-
-## 🛠️ Build
-
-Tanpa dependensi runtime atau bundler. Butuh Python 3:
-
-```bash
-python3 build.py
-```
-
-```
-dist/chromium/                              folder siap untuk Load unpacked
-dist/firefox/                               folder siap untuk Load Temporary Add-on
-dist/wraith-translate-chromium-v<ver>.zip
-dist/wraith-translate-firefox-v<ver>.zip
-```
-
-Manifest Firefox dibuat otomatis dari `src/manifest.json` (background script + `browser_specific_settings.gecko`). Naikkan `version` di `src/manifest.json` untuk setiap rilis. Lint Firefox: `npx web-ext lint -s dist/firefox`.
-
-## 🧪 Pengujian
-
-Tes otomatis memakai server OpenAI tiruan lokal dan Chromium headless:
-
-```bash
-pip install playwright
-python3 build.py
-python3 tests/e2e_page.py            # replace/bilingual/lazy/restore, kode dan notranslate dilewati, saklar fitur, jalur error
-python3 tests/e2e_popup_inject.py    # popup menyimpan pengaturan, togglePage, injeksi script sesuai kebutuhan
-```
-
-Screenshot tes disimpan di `tests/out/`.
-
-<details>
-<summary><b>Skenario tes manual</b></summary>
-
-1. 9router: Connect, daftar model muncul, pilih satu, simpan, *Test translation* berhasil.
-2. Seleksi satu kalimat di halaman biasa: tombol muncul, klik, tooltip menampilkan hasil lengkap tanpa scrollbar di dalamnya.
-3. Seleksi teks di dalam `<textarea>`: tombol tetap muncul.
-4. Pakai menu *Translate to* di tooltip: teks yang sama diterjemahkan ulang ke bahasa itu dan bahasa tujuan tersimpan tidak berubah. `Esc` atau klik di tempat lain menutup tooltip.
-5. Pakai API key yang salah: tooltip menampilkan pesan 401/403 dan tombol *Open settings*.
-6. Matikan 9router lalu terjemahkan: muncul pesan "Cannot reach…".
-7. Seleksi lebih dari 5.000 karakter: muncul pesan "Text is too long".
-8. Ganti ke Custom (pilih preset, Connect), Claude, dan DeepL; ulangi langkah 2.
-9. Di `chrome://extensions` tombol tidak muncul (memang seharusnya begitu).
-10. Reload extension tanpa reload tab: muncul pesan "Extension was updated".
-11. Matikan *Translate selected text*, Save, reload tab: menyeleksi teks tidak memunculkan tombol; tombol popup tetap menerjemahkan halaman.
-12. Matikan *Translate full page*, Save: menu klik kanan hilang dan tombol popup nonaktif.
-13. Terjemahkan artikel panjang dengan *Replace text*: teks yang terlihat berubah, blok kode tidak tersentuh, scroll menerjemahkan sisanya. *Show original page* mengembalikan semuanya.
-14. Mode *Show both*: terjemahan muncul di bawah tiap paragraf; tombol *Original* di bar menyembunyikan/menampilkannya.
-15. API key salah saat terjemahan halaman: bar menampilkan error dengan Retry dan Settings.
-16. Klik ikon di tab yang dibuka sebelum extension dipasang/di-reload: popup terbuka dan terjemahan tetap berfungsi.
-17. Klik ikon di `chrome://extensions`: popup menyatakan halaman tidak bisa diterjemahkan; *Open settings* tetap berfungsi.
-
-</details>
+<a id="pemecahan-masalah"></a>
 
 ## 🩺 Pemecahan masalah
 
@@ -409,7 +301,7 @@ Screenshot tes disimpan di `tests/out/`.
 | 456 (DeepL) | Kuota karakter bulanan habis. |
 | Daftar model kosong | Belum ada AI yang terhubung di 9router, atau key tidak bisa membaca daftar model. |
 | Hasil mengandung komentar tambahan | Sebagian model kecil mengabaikan instruksi. Pilih model lain. |
-| Terjemahan lambat | Biasanya penyebabnya model, bukan extension. Pilih model bertanda ★ di Settings, hindari model reasoning, atau pakai DeepL. Lihat [Memilih model](#-memilih-model). |
+| Terjemahan lambat | Biasanya penyebabnya model, bukan extension. Pilih model bertanda ★ di Settings, hindari model reasoning, atau pakai DeepL. Lihat [Memilih model](#memilih-model). |
 | Halaman hanya sebagian diterjemahkan | Kode, kolom input, dan elemen tersembunyi sengaja dilewati. Matikan *Translate as you scroll* untuk menerjemahkan semuanya sekaligus, atau tekan Retry setelah error. |
 | "Extension was updated" | Reload tab yang sedang Anda buka. |
 
@@ -420,7 +312,47 @@ Screenshot tes disimpan di `tests/out/`.
 - Mode *Replace text* menerjemahkan potongan demi potongan, sehingga kalimat yang terpecah oleh tag inline (`<b>`, `<a>`) diterjemahkan terpisah. Mode *Show both* menerjemahkan seluruh blok dan terbaca lebih natural.
 - Konten yang dimuat setelah terjemahan dimulai (infinite scroll) diterjemahkan begitu scroll berhenti; konten dinamis yang terus berubah bisa memicu terjemahan berulang.
 - Terjemahan teks terseleksi tampil bertahap saat model menulisnya. Terjemahan satu halaman terisi per batch (satu batch muncul setelah seluruh balasannya selesai).
-- Firefox hanya diuji manual sebagai add-on sementara (belum ada tes otomatis Firefox); Safari belum dibuat.
+- Firefox belum punya tes otomatis (hanya lint dan pengecekan manual); Safari belum dibuat.
+
+## 🧩 Arsitektur
+
+`content.js` (tombol seleksi, tooltip, penerjemah halaman) berkomunikasi dengan `background.js` (service worker), yang membaca pengaturan lalu memanggil `lib/providers.js` untuk 9router, layanan kompatibel OpenAI, Claude, atau DeepL. Peta file, alur pesan, protokol batch, serta cara menambah provider, bahasa, atau pengaturan ada di [`AGENTS.md`](AGENTS.md).
+
+<a id="build"></a>
+
+## 🛠️ Build
+
+Tanpa dependensi runtime atau bundler. Butuh Python 3:
+
+```bash
+python3 build.py
+```
+
+```
+dist/chromium/                              folder siap untuk Load unpacked
+dist/firefox/                               folder siap untuk Load Temporary Add-on
+dist/wraith-translate-chromium-v<ver>.zip
+dist/wraith-translate-firefox-v<ver>.zip
+```
+
+Manifest Firefox dibuat otomatis dari `src/manifest.json` (background script + `browser_specific_settings.gecko`). Naikkan `version` di `src/manifest.json` untuk setiap rilis. Lint Firefox: `npx web-ext lint -s dist/firefox`.
+
+<a id="pengujian"></a>
+
+## 🧪 Pengujian
+
+Tes otomatis memakai server OpenAI tiruan lokal dan Chromium headless:
+
+```bash
+pip install playwright
+python3 build.py
+python3 tests/e2e_page.py            # replace/bilingual/lazy/restore, kode dan notranslate dilewati, saklar fitur, jalur error
+python3 tests/e2e_popup_inject.py    # popup menyimpan pengaturan, togglePage, injeksi script sesuai kebutuhan
+```
+
+Screenshot tes disimpan di `tests/out/`.
+
+Skenario tes manual (17 pengecekan) ada di [`tests/MANUAL.id.md`](tests/MANUAL.id.md).
 
 ## 🤝 Kontribusi
 
