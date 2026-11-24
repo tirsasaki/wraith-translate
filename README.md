@@ -2,7 +2,7 @@
 
 <img src="assets/logo-512.png" alt="Wraith Translate logo: a cyan ghost with a translation speech bubble" width="148" height="148">
 
-# Wraith Translate <img src="https://img.shields.io/badge/version-1.4.0-5DE0FF?style=flat-square&labelColor=1B1A2E" alt="version 1.4.0" align="top">
+# Wraith Translate <img src="https://img.shields.io/badge/version-1.4.1-5DE0FF?style=flat-square&labelColor=1B1A2E" alt="version 1.4.1" align="top">
 
 <sub>🌐 **English** &nbsp;·&nbsp; [Bahasa Indonesia](README.id.md)</sub>
 
@@ -348,6 +348,8 @@ pip install playwright
 python3 build.py
 python3 tests/e2e_page.py            # replace/bilingual/lazy/restore, code and notranslate skipped, feature toggles, error path
 python3 tests/e2e_popup_inject.py    # popup saves settings, togglePage, on-demand script injection
+python3 tests/e2e_icon_position.py   # selection icon sits above the selected word / release point
+python3 tests/e2e_fixes.py          # 1.4.1 regressions: display:contents, iframe language switch, truncation note, menu sync
 ```
 
 Test screenshots are saved to `tests/out/`.
@@ -369,6 +371,6 @@ Edit only `src/`, run `python3 build.py`, then run the tests above. Full rules a
 
 <img src="assets/logo.svg" alt="Wraith Translate" width="44" height="44">
 
-<sub>**Wraith Translate** · v1.4.0 · Translate quietly, like a ghost 👻</sub>
+<sub>**Wraith Translate** · v1.4.1 · Translate quietly, like a ghost 👻</sub>
 
 </div>
