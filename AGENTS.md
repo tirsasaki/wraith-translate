@@ -94,7 +94,7 @@ python3 tests/e2e_popup_inject.py   # popup settings save, togglePage, on-demand
 python3 tests/e2e_icon_position.py  # selection icon floats above the selected word (double-click) / release point (drag)
 python3 tests/e2e_fixes.py         # display:contents (lazy), bar language before first reply + reaching iframes, truncated-selection note, selection cache per base URL, context-menu sync
 ```
-Each starts a local HTTP server (a mock OpenAI API where translation is involved), loads `dist/chromium` in headless Chromium, and prints `PASS`/`FAIL`. Screenshots go to `tests/out/`. Firefox has no automated tests: it is linted (`npx web-ext lint -s dist/firefox`) and was verified manually as a temporary add-on (`npx web-ext run -s dist/firefox` for live reload). Manual scenarios are in `README.md` (English) and `README.id.md` (Indonesian); keep both READMEs in sync.
+Each starts a local HTTP server (a mock OpenAI API where translation is involved), loads `dist/chromium` in headless Chromium, and prints `PASS`/`FAIL`. Screenshots go to `tests/out/`. Firefox has no automated tests: it is linted (`npx web-ext lint -s dist/firefox`) and was verified manually as a temporary add-on (`npx web-ext run -s dist/firefox` for live reload). Manual scenarios (17 checks) are in `tests/MANUAL.md` (English) and `tests/MANUAL.id.md` (Indonesian); keep both in sync, like `README.md` and `README.id.md`.
 
 ## Gotchas
 - `content.js` is a classic script (no `import`); it can't share code with `lib/`.
