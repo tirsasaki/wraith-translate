@@ -58,7 +58,8 @@ chrome.runtime.onConnect.addListener((port) => {
     try {
       const settings = await getSettings();
       const s = { ...settings, targetLang: pickLang(settings, msg.targetLang) };
-      const key = [s.provider, s.providers?.[s.provider]?.model || "", s.targetLang, msg.text].join("\u0001");
+      const pc = s.providers?.[s.provider] || {};
+      const key = JSON.stringify([s.provider, pc.baseUrl || "", pc.model || "", s.targetLang, msg.text]);
       const hit = selCache.get(key);
       if (hit) return send({ type: "done", ...hit });
       const res = await translateStream(s, msg.text, (text) => send({ type: "delta", text }), ctrl.signal);
@@ -109,7 +110,15 @@ async function togglePage(tab) {
   return action === "start" ? "started" : "stopped";
 }
 
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  // Language picked in the page bar (top frame): restart the translation in every frame of the tab.
+  if (msg?.type === "pageLang") {
+    const tabId = sender.tab?.id;
+    if (tabId == null || !LANGUAGES.some((l) => l.code === msg.lang)) { sendResponse({ ok: false }); return; }
+    chrome.tabs.sendMessage(tabId, { type: "pageCmd", action: "restart", lang: msg.lang })
+      .then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }));
+    return true;
+  }
   if (msg?.type === "pageStatus") {
     pageState(msg.tabId).then((s) => sendResponse({ active: !!s?.active, reachable: !!s }));
     return true;
@@ -129,13 +138,23 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === MENU_ID) togglePage(tab);
 });
 
-// The right-click entry exists only while the full-page feature is on.
-async function syncMenu() {
+// The right-click entry exists only while the full-page feature is on. Calls are chained so two
+// quick settings changes cannot interleave removeAll/create (which fails with "duplicate id").
+let menuSync = Promise.resolve();
+async function doSyncMenu() {
   const { features } = await getSettings();
   await chrome.contextMenus.removeAll();
-  if (features.page) {
-    chrome.contextMenus.create({ id: MENU_ID, title: "Translate this page with Wraith Translate", contexts: ["page"] });
-  }
+  if (!features.page) return;
+  await new Promise((resolve) => {
+    chrome.contextMenus.create(
+      { id: MENU_ID, title: "Translate this page with Wraith Translate", contexts: ["page"] },
+      () => { void chrome.runtime.lastError; resolve(); }
+    );
+  });
+}
+function syncMenu() {
+  menuSync = menuSync.then(doSyncMenu).catch(() => {});
+  return menuSync;
 }
 chrome.runtime.onInstalled.addListener(syncMenu);
 chrome.runtime.onStartup.addListener(syncMenu);

@@ -43,14 +43,15 @@ Adding a setting: (1) default in `lib/defaults.js` **and** merge it in `getSetti
 ## Message protocol
 | From → To | `type` | Notes |
 |---|---|---|
-| content → bg | `translate` `{text, targetLang?}` | Selection tooltip. Reply `{ok, text, langName, langCode, provider, detected?}` or `{ok:false, error}` |
+| content → bg | `translate` `{text, targetLang?}` | Selection tooltip. Reply `{ok, text, langName, langCode, provider, detected?, truncated?}` or `{ok:false, error}`. `truncated: true` = the LLM stopped at its output limit |
 | content ⇄ bg | port `translateStream`, first message `{type:"translate", text, targetLang?}` | Selection tooltip (streaming). bg replies with `{type:"delta", text}` chunks, then `{type:"done", text, langName, langCode, provider, detected?}` or `{type:"error", error}`. Closing the port aborts the request. The plain `translate` message still works (options page uses `translate()` directly) |
 | content → bg | `translateBatch` `{texts[], targetLang?}` | Page translation. Reply `{ok, texts[]}` same length/order |
 | content → bg | `languages`, `openOptions` | |
 | popup → bg | `pageStatus` `{tabId}` → `{active, reachable}` | Injects `content.js` if the tab has none |
 | popup → bg | `togglePage` `{tabId}` → `{status}` | `started` / `stopped` / `disabled` / `unavailable` |
 | bg → tab | `pageState` (top frame only) | Top frame is the source of truth for "is the page translated?" |
-| bg → tab | `pageCmd` `{action: "start" \| "stop" \| "disabled"}` | Broadcast to **all frames**; each frame acts on itself. Only the top frame draws the bar |
+| content → bg | `pageLang` `{lang}` → `{ok}` | Language picked in the page bar (top frame). bg validates `lang` and broadcasts `pageCmd restart` to every frame of the sender's tab |
+| bg → tab | `pageCmd` `{action: "start" \| "stop" \| "restart" \| "disabled", lang?}` | Broadcast to **all frames**; each frame acts on itself. `restart` = stop, then start in `lang`. Only the top frame draws the bar |
 
 Entry points that call `togglePage`: popup button, `Alt+W` command, context-menu item.
 
@@ -65,11 +66,11 @@ Entry points that call `togglePage`: popup button, `Alt+W` command, context-menu
 
 ## Batch translation protocol (lib/providers.js)
 - DeepL: native array in, array out.
-- LLM providers: system prompt asks for a JSON array of the same length; `parseArray()` tolerates code fences. If the reply is malformed, `llmBatch()` **halves the batch recursively (both halves in parallel)** down to single strings (single strings use the plain prompt, no JSON).
+- LLM providers: system prompt asks for a JSON array of the same length; `parseArray()` tolerates code fences. If the reply is malformed or was cut off at the output limit (`complete()` returns `{text, cut}`), `llmBatch()` **halves the batch recursively (both halves in parallel)** down to single strings (single strings use the plain prompt, no JSON).
 - `MAX_BATCH_CHARS` guards the background; selection translation is capped by `MAX_CHARS` (5000).
 
 ## Speed knobs (lib/providers.js)
-- `variantsFor()` returns a ladder of extra request-body fields per model: thinking-capable models (Gemini, GPT-5, Qwen3, …) try `reasoning_effort` `none` → `minimal` → `low` → nothing; others try `temperature: 0` → nothing. `withVariants()` moves down the ladder on 400/422/5xx and remembers the working step per `provider|url|model` (in memory + `chrome.storage.session`).
+- `variantsFor()` returns a ladder of extra request-body fields per model: thinking-capable models (Gemini, GPT-5, Qwen3, …) try `reasoning_effort` `none` → `minimal` → `low` → nothing; others try `temperature: 0` → nothing; Claude tries `max_tokens: 8192` → the default 4096 (for older models with a 4096 output cap). `withVariants()` moves down the ladder on 400/422/5xx and remembers the working step per `provider|url|model` (in memory + `chrome.storage.session`).
 - `request()` has a 90 s timeout, honors an `AbortSignal`, and retries 429/5xx twice with backoff (`Retry-After` respected). Non-final ladder steps retry only 429, so a rejected parameter fails fast.
 - `complete(..., {onDelta, signal})` streams (SSE) for OpenAI-compatible and Claude; if the server answers with plain JSON it falls back transparently. `<think>…</think>` blocks are stripped.
 - `translateStream()` is the streaming twin of `translate()`; DeepL is not streamed.
@@ -90,8 +91,10 @@ Needs Python + Playwright with Chromium: `pip install playwright`. Run after `py
 ```
 python3 tests/e2e_page.py           # replace/bilingual/lazy/restore, notranslate+code skipped, feature toggles, error path
 python3 tests/e2e_popup_inject.py   # popup settings save, togglePage, on-demand injection (manifest without content_scripts)
+python3 tests/e2e_icon_position.py  # selection icon floats above the selected word (double-click) / release point (drag)
+python3 tests/e2e_fixes.py         # display:contents (lazy), bar language before first reply + reaching iframes, truncated-selection note, selection cache per base URL, context-menu sync
 ```
-Both start a local mock OpenAI server, load `dist/chromium` in headless Chromium, and print `PASS`/`FAIL`. Screenshots go to `tests/out/`. Firefox has no automated tests: it is linted (`npx web-ext lint -s dist/firefox`) and was verified manually as a temporary add-on (`npx web-ext run -s dist/firefox` for live reload). Manual scenarios are in `README.md` (English) and `README.id.md` (Indonesian); keep both READMEs in sync.
+Each starts a local HTTP server (a mock OpenAI API where translation is involved), loads `dist/chromium` in headless Chromium, and prints `PASS`/`FAIL`. Screenshots go to `tests/out/`. Firefox has no automated tests: it is linted (`npx web-ext lint -s dist/firefox`) and was verified manually as a temporary add-on (`npx web-ext run -s dist/firefox` for live reload). Manual scenarios (17 checks) are in `tests/MANUAL.md` (English) and `tests/MANUAL.id.md` (Indonesian); keep both in sync, like `README.md` and `README.id.md`.
 
 ## Gotchas
 - `content.js` is a classic script (no `import`); it can't share code with `lib/`.

@@ -91,13 +91,14 @@
   const langSel = $(".lang"), toLabel = $(".to"), copyBtn = $(".copy"), settingsBtn = $(".settings"), closeBtn = $(".x");
 
   // Feature flags mirror the saved settings (defaults match lib/defaults.js).
-  let cfg = { selection: true, page: true, mode: "replace", lazy: true };
+  let cfg = { selection: true, page: true, mode: "replace", lazy: true, targetLang: "id" };
   const applySettings = (st) => {
     cfg = {
       selection: st?.features?.selection !== false,
       page: st?.features?.page !== false,
       mode: st?.page?.mode === "bilingual" ? "bilingual" : "replace",
-      lazy: st?.page?.lazy !== false
+      lazy: st?.page?.lazy !== false,
+      targetLang: typeof st?.targetLang === "string" ? st.targetLang : "id"
     };
     if (!cfg.selection) { btn.classList.remove("show"); tip.classList.remove("show"); }
     if (!cfg.page && page) stopPage();
@@ -299,7 +300,8 @@
           if (my !== token) return;
           fillLanguages(m.langCode);
           const src = m.detected ? `${m.detected} → ` : "";
-          render("", m.text, `${LABELS[m.provider] || m.provider} · ${src}${m.langName}`);
+          const cut = m.truncated ? " · incomplete (output limit reached)" : "";
+          render("", m.text, `${LABELS[m.provider] || m.provider} · ${src}${m.langName}${cut}`);
         });
       } else if (m.type === "error") {
         closePort();
@@ -366,16 +368,35 @@
     return false;
   }
 
-  function visible(el) {
-    try { return el.checkVisibility ? el.checkVisibility({ checkVisibilityCSS: true }) : el.getClientRects().length > 0; }
-    catch { return true; }
+  function displayOf(e, displayCache) {
+    let d = displayCache.get(e);
+    if (d === undefined) { d = getComputedStyle(e).display; displayCache.set(e, d); }
+    return d;
+  }
+
+  // Nearest ancestor (or el itself) that generates a box. `display: contents` elements have none,
+  // so IntersectionObserver never reports them and checkVisibility() always says false.
+  function boxOf(el, displayCache) {
+    for (let e = el; e && e !== document.body; e = e.parentElement) {
+      if (displayOf(e, displayCache) !== "contents") return e;
+    }
+    return document.body;
+  }
+
+  function visible(el, displayCache) {
+    try {
+      if (!el.checkVisibility) return el.getClientRects().length > 0;
+      const box = boxOf(el, displayCache);
+      if (box === el) return el.checkVisibility({ checkVisibilityCSS: true });
+      // Text inside display:contents: judge by the box that renders it, plus inherited visibility.
+      return box.checkVisibility({ checkVisibilityCSS: true }) && getComputedStyle(el).visibility === "visible";
+    } catch { return true; }
   }
 
   // Nearest ancestor that renders as a block (what a reader sees as one paragraph).
   function blockOf(el, displayCache) {
     for (let e = el; e && e !== document.body; e = e.parentElement) {
-      let d = displayCache.get(e);
-      if (d === undefined) { d = getComputedStyle(e).display; displayCache.set(e, d); }
+      const d = displayOf(e, displayCache);
       if (d !== "inline" && d !== "contents") return e;
     }
     return document.body;
@@ -399,7 +420,7 @@
       if (skip === undefined) { skip = skippedElement(el); skipCache.set(el, skip); }
       if (skip) continue;
       let vis = visCache.get(el);
-      if (vis === undefined) { vis = visible(el); visCache.set(el, vis); }
+      if (vis === undefined) { vis = visible(el, dispCache); visCache.set(el, vis); }
       if (!vis) continue;
       page.seen.add(n);
       if (bilingual) {
@@ -409,7 +430,8 @@
         blocks.get(b).push(n);
       } else {
         const lead = raw.match(/^\s*/)[0], trail = raw.match(/\s*$/)[0];
-        found.push({ kind: "node", el, node: n, orig: raw, lead, trail, text: trimmed, tr: null });
+        // el is what the lazy IntersectionObserver watches, so it must be an element with a box.
+        found.push({ kind: "node", el: boxOf(el, dispCache), node: n, orig: raw, lead, trail, text: trimmed, tr: null });
       }
     }
     for (const [b, nodes] of blocks) {
@@ -528,7 +550,8 @@
   function startPage(lang) {
     if (page || !cfg.page || !document.body) return;
     page = {
-      mode: cfg.mode, lazy: cfg.lazy, lang, langName: "", langCode: lang || "",
+      // langCode is shown in the bar's language menu before the first reply confirms it.
+      mode: cfg.mode, lazy: cfg.lazy, lang, langName: "", langCode: lang || cfg.targetLang,
       seen: new WeakSet(), seenBlocks: new WeakSet(), groups: new Map(), queue: [], failed: [], done: [], cache: new Map(),
       inflight: 0, error: "", showing: true, io: null, timer: 0
     };
@@ -579,10 +602,16 @@
     page.done.forEach(paint);
     updateBar();
   });
+  const restartPage = (code) => { stopPage(); startPage(code); };
+  // The bar lives in the top frame, but iframes are translated too: the background broadcasts
+  // the restart to every frame. If that fails, at least this frame switches.
   barLang.addEventListener("change", () => {
     const code = barLang.value;
-    stopPage();
-    startPage(code);
+    try {
+      chrome.runtime.sendMessage({ type: "pageLang", lang: code }, (res) => {
+        if (chrome.runtime.lastError || !res?.ok) restartPage(code);
+      });
+    } catch { restartPage(code); }
   });
 
   try {
@@ -591,6 +620,7 @@
       if (msg?.type !== "pageCmd") return;
       if (msg.action === "start") startPage();
       else if (msg.action === "stop") stopPage();
+      else if (msg.action === "restart") restartPage(typeof msg.lang === "string" ? msg.lang : undefined);
       else if (msg.action === "disabled" && isTop) {
         setBar("err", "Full-page translation is turned off in settings.", { settings: true });
       }

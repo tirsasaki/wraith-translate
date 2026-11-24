@@ -141,8 +141,12 @@ const THINK_LADDER = [
   {}
 ];
 
+// Claude: ask for a larger output budget so long selections are not cut off. Older models with a
+// 4096-token output cap reject it (400), and the ladder falls back to the default in llmTarget().
+const CLAUDE_LADDER = [{ max_tokens: 8192 }, {}];
+
 function variantsFor(provider, model) {
-  if (provider === "claude") return [{}];
+  if (provider === "claude") return CLAUDE_LADDER;
   const m = String(model || "").toLowerCase();
   // Gemini 3 is tuned for its default temperature, so only the thinking level is touched.
   if (m.includes("gemini")) return THINK_LADDER;
@@ -199,7 +203,7 @@ async function readSSE(res, signal, onData) {
   const stop = () => { reader.cancel().catch(() => {}); };
   signal?.addEventListener("abort", stop, { once: true });
   const dec = new TextDecoder();
-  let buf = "";
+  let buf = "", finished = false;
   const feed = (line) => {
     if (!line.startsWith("data:")) return;
     const d = line.slice(5).trim();
@@ -217,9 +221,12 @@ async function readSSE(res, signal, onData) {
       buf = lines.pop();
       for (const l of lines) feed(l);
     }
+    finished = true;
     if (buf) feed(buf);
   } finally {
     signal?.removeEventListener("abort", stop);
+    // onData threw (error event in the stream): close the connection instead of leaving it open.
+    if (!finished) stop();
   }
   if (signal?.aborted) throw new ApiError("Cancelled.");
 }
@@ -240,7 +247,9 @@ function llmTarget(provider, cfg) {
         ...extra
       }),
       pick: (j) => j?.choices?.[0]?.message?.content,
-      delta: (o) => o?.choices?.[0]?.delta?.content
+      delta: (o) => o?.choices?.[0]?.delta?.content,
+      // finish_reason "length" = the reply hit the output limit.
+      cut: (o) => o?.choices?.[0]?.finish_reason === "length"
     };
   }
   if (provider === "claude") {
@@ -259,13 +268,16 @@ function llmTarget(provider, cfg) {
         ...extra
       }),
       pick: (j) => (j?.content || []).filter((b) => b.type === "text").map((b) => b.text).join(""),
-      delta: (o) => (o?.type === "content_block_delta" && o.delta?.type === "text_delta" ? o.delta.text : "")
+      delta: (o) => (o?.type === "content_block_delta" && o.delta?.type === "text_delta" ? o.delta.text : ""),
+      // Plain reply: top-level stop_reason. Stream: message_delta event carries delta.stop_reason.
+      cut: (o) => o?.stop_reason === "max_tokens" || o?.delta?.stop_reason === "max_tokens"
     };
   }
   throw new ApiError("Unknown provider.");
 }
 
-// One chat completion on an LLM provider (9router, Custom, Claude). Returns the reply text.
+// One chat completion on an LLM provider (9router, Custom, Claude). Returns { text, cut }, where
+// cut = true when the reply stopped at the model's output limit (the text is incomplete).
 // With opts.onDelta the reply is streamed and onDelta(textChunk) fires as it arrives.
 async function complete(provider, cfg, system, user, opts = {}) {
   const { onDelta, signal } = opts;
@@ -275,7 +287,10 @@ async function complete(provider, cfg, system, user, opts = {}) {
     // A variant that is not the last one is probably going to be rejected: fail fast on 5xx there.
     const ropts = { retries: 2, retryStatus: last ? RETRY_ALL : RETRY_RATE, signal };
     const init = { method: "POST", headers: t.headers, body: JSON.stringify(t.body(system, user, extra, !!onDelta)) };
-    if (!onDelta) return t.pick(await request(provider, t.url, init, ropts));
+    if (!onDelta) {
+      const j = await request(provider, t.url, init, ropts);
+      return { raw: t.pick(j), cut: t.cut(j) };
+    }
 
     const res = await request(provider, t.url, init, { ...ropts, raw: true });
     if (!(res.headers.get("content-type") || "").includes("text/event-stream")) {
@@ -285,22 +300,23 @@ async function complete(provider, cfg, system, user, opts = {}) {
       const whole = t.pick(j) || "";
       const v = visibleText(whole, true).trim();
       if (v) onDelta(v);
-      return whole;
+      return { raw: whole, cut: t.cut(j) };
     }
-    let full = "", sent = 0;
+    let full = "", sent = 0, cut = false;
     await readSSE(res, signal, (o) => {
       if (o?.error) throw new ApiError(String(o.error.message || "The stream was interrupted.").slice(0, 160));
+      if (t.cut(o)) cut = true;
       const d = t.delta(o);
       if (!d) return;
       full += d;
       const v = visibleText(full, false).trimStart();
       if (v.length > sent) { onDelta(v.slice(sent)); sent = v.length; }
     });
-    return full;
+    return { raw: full, cut };
   });
-  const text = visibleText(String(out || ""), true).trim();
+  const text = visibleText(String(out.raw || ""), true).trim();
   if (!text) throw new ApiError(`${t.label} returned no translation.`);
-  return text;
+  return { text, cut: !!out.cut };
 }
 
 async function deeplTranslate(cfg, texts, lang) {
@@ -338,7 +354,7 @@ export async function translate(settings, text) {
     return { text: t.text, provider, langName: lang.name, langCode: lang.code, detected: t.detected_source_language };
   }
   const out = await complete(provider, cfg, systemPrompt(lang.name), clean);
-  return { text: out, provider, langName: lang.name, langCode: lang.code };
+  return { text: out.text, provider, langName: lang.name, langCode: lang.code, truncated: out.cut };
 }
 
 // Same result as translate(), but onDelta(textChunk) is called while the reply is being written.
@@ -350,7 +366,7 @@ export async function translateStream(settings, text, onDelta, signal) {
     return r;
   }
   const out = await complete(provider, cfg, systemPrompt(lang.name), clean, { onDelta, signal });
-  return { text: out, provider, langName: lang.name, langCode: lang.code };
+  return { text: out.text, provider, langName: lang.name, langCode: lang.code, truncated: out.cut };
 }
 
 /* ---------- Batch translation (full page) ---------- */
@@ -381,12 +397,13 @@ function parseArray(raw, n) {
 
 async function llmBatch(provider, cfg, lang, texts) {
   if (texts.length === 1) {
-    return [await complete(provider, cfg, systemPrompt(lang.name), texts[0])];
+    return [(await complete(provider, cfg, systemPrompt(lang.name), texts[0])).text];
   }
-  const raw = await complete(provider, cfg, batchPrompt(lang.name), JSON.stringify(texts));
-  const arr = parseArray(raw, texts.length);
+  const out = await complete(provider, cfg, batchPrompt(lang.name), JSON.stringify(texts));
+  const arr = out.cut ? null : parseArray(out.text, texts.length);
   if (arr) return arr;
-  // The model broke the format: halve the batch (both halves in parallel) down to single strings.
+  // The model broke the format or hit its output limit: halve the batch (both halves in parallel)
+  // down to single strings.
   const mid = Math.ceil(texts.length / 2);
   const [a, b] = await Promise.all([
     llmBatch(provider, cfg, lang, texts.slice(0, mid)),

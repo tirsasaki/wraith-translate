@@ -2,7 +2,7 @@
 
 <img src="assets/logo-512.png" alt="Logo Wraith Translate: hantu cyan dengan balon terjemahan" width="148" height="148">
 
-# Wraith Translate <img src="https://img.shields.io/badge/version-1.4.0-5DE0FF?style=flat-square&labelColor=1B1A2E" alt="versi 1.4.0" align="top">
+# Wraith Translate <img src="https://img.shields.io/badge/version-1.4.1-5DE0FF?style=flat-square&labelColor=1B1A2E" alt="versi 1.4.1" align="top">
 
 <sub>🌐 [English](README.md) &nbsp;·&nbsp; **Bahasa Indonesia**</sub>
 
@@ -348,6 +348,8 @@ pip install playwright
 python3 build.py
 python3 tests/e2e_page.py            # replace/bilingual/lazy/restore, kode dan notranslate dilewati, saklar fitur, jalur error
 python3 tests/e2e_popup_inject.py    # popup menyimpan pengaturan, togglePage, injeksi script sesuai kebutuhan
+python3 tests/e2e_icon_position.py   # ikon seleksi muncul tepat di atas kata yang dipilih / titik lepas mouse
+python3 tests/e2e_fixes.py          # regresi 1.4.1: display:contents, ganti bahasa di iframe, tanda terpotong, sinkron menu
 ```
 
 Screenshot tes disimpan di `tests/out/`.
@@ -369,6 +371,6 @@ Edit hanya `src/`, jalankan `python3 build.py`, lalu jalankan tes di atas. Atura
 
 <img src="assets/logo.svg" alt="Wraith Translate" width="44" height="44">
 
-<sub>**Wraith Translate** · v1.4.0 · Menerjemahkan diam-diam, seperti hantu 👻</sub>
+<sub>**Wraith Translate** · v1.4.1 · Menerjemahkan diam-diam, seperti hantu 👻</sub>
 
 </div>
